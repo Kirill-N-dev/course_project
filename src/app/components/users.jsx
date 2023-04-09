@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import api from '../api';
 
 const Users = () => {
-  ///////////////////////////////////////
+  //////////////////////////////////////
   const [users, setUsers] = useState(api.users.fetchAll());
-  ///////////////////////////////////////
+  //////////////////////////////////////
   const handleDelete = (userId) => {
     let newArr = users.filter((i) => i._id !== userId);
     setUsers(newArr);
   };
-  ///////////////////////////////////////
+  //////////////////////////////////////
   const renderPhrase = (number) => {
     let lastCount = +String(number)[String(number).length - 1];
     let penCount = +String(number)[String(number).length - 2];
