@@ -1,4 +1,4 @@
-const professions = {
+export const professions = {
   doctor: { _id: '67rdca3eeb7f6fgeed471818', name: 'Доктор' },
   waiter: { _id: '67rdca3eeb7f6fgeed471820', name: 'Официант' },
   physics: { _id: '67rdca3eeb7f6fgeed471814', name: 'Физик' },
@@ -6,7 +6,7 @@ const professions = {
   actor: { _id: '67rdca3eeb7f6fgeed471824', name: 'Актер' },
   cook: { _id: '67rdca3eeb7f6fgeed471829', name: 'Повар' },
 };
-const qualities = {
+export const qualities = {
   tedious: {
     _id: '67rdca3eeb7f6fgeed471198',
     name: 'Нудила',
@@ -35,7 +35,7 @@ const qualities = {
   },
 };
 
-const users = [
+export const users = [
   {
     _id: '67rdca3eeb7f6fgeed471815',
     name: 'Джон Дориан',
