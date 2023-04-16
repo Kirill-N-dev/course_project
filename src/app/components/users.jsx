@@ -1,85 +1,60 @@
 import React, { useState } from 'react';
 import API from '../api';
+import SearchStatus from './searchStatus';
+import User from './user';
+
+/* ЧУТЬ ГОЛОВУ НЕ СЛОМАЛ
+У МЕНЯ ТУТ ВОПРОС - А ЭТО ГРЕХ ВЫЗЫВАТЬ В РЕАКТЕ КОД ИЗ НЭТИВ ДОМА ТИПА ИВЕНТ ТАРГЕТОВ, ЕСЛИ МОЖНО ОБОЙТИСЬ БЕЗ,
+КАК В ДАННОМ СЛУЧАЕ, В СЛУЧАЕ БУКМАРКОВ?  */
 
 const Users = () => {
   const [users, setUsers] = useState(API.fetchAll());
+
   const handleDelete = (userId) => {
-    let newArr = users.filter((i) => i._id !== userId);
+    const newArr = users.filter((i) => i._id !== userId);
+    /* console.log(123); */
     setUsers(newArr);
   };
-  const renderPhrase = (number) => {
-    let lastCount = +String(number)[String(number).length - 1];
-    let penCount = +String(number)[String(number).length - 2];
-    let tusa;
-    if (lastCount === 1 && penCount !== 1) tusa = ' тусанёт';
-    else tusa = ' тусанут';
-    let man;
-    if (
-      (lastCount === 2 || lastCount === 3 || lastCount === 4) &&
-      penCount !== 1
-    )
-      man = ' человека';
-    else man = ' человек';
-    return number !== 0 ? (
-      <>
-        <div className="p-2 m-1 fs-6 badge bg-primary">
-          {number} {man} {tusa} с тобой сегодня
-        </div>
-      </>
-    ) : (
-      <>
-        <div className="p-2 m-1 fs-6 badge bg-danger">
-          Никто с тобой не тусанёт
-        </div>
-      </>
-    );
+
+  const handleColorizer = (id) => {
+    const newArr_2 = users.map((i) => ({
+      ...i,
+      bookmark: i._id === id ? !i.bookmark : i.bookmark,
+    }));
+
+    setUsers(newArr_2);
   };
+
   return (
     <>
-      {renderPhrase(users.length)}
-      <table className="table table-group-divider">
-        <thead>
-          <tr>
-            <th scope="col">Имя</th>
-            <th scope="col">Качества</th>
-            <th scope="col">Профессия</th>
-            <th scope="col">Встретился, раз</th>
-            <th scope="col">Оценка</th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((i) => {
-            return (
-              <tr key={i._id}>
-                <td>{i.name}</td>
-                <td>
-                  {i.qualities.map((i) => {
-                    const name = `m-1 badge bg-${i.color}`;
-                    return (
-                      <span className={name} key={i._id}>
-                        {i.name}
-                      </span>
-                    );
-                  })}
-                </td>
-                <td>{i.profession.name}</td>
-                <td>{i.completedMeetings}</td>
-                <td>{i.rate} /5</td>
-                <td>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDelete(i._id)}
-                  >
-                    delete
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <SearchStatus number={users.length} />
+      {users.length > 0 && (
+        <table className="table table-group-divider">
+          <thead>
+            <tr>
+              <th scope="col">Имя</th>
+              <th scope="col">Качества</th>
+              <th scope="col">Профессия</th>
+              <th scope="col">Встретился, раз</th>
+              <th scope="col">Оценка</th>
+              <th scope="col">Избранное</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((i) => (
+              <User
+                {...i}
+                handleDelete={handleDelete}
+                handleColorizer={handleColorizer}
+                key={i._id}
+              />
+            ))}
+          </tbody>
+        </table>
+      )}
     </>
   );
 };
+
 export default Users;
