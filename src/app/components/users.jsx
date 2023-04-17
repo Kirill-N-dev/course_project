@@ -3,16 +3,11 @@ import API from '../api';
 import SearchStatus from './searchStatus';
 import User from './user';
 
-/* ЧУТЬ ГОЛОВУ НЕ СЛОМАЛ
-У МЕНЯ ТУТ ВОПРОС - А ЭТО ГРЕХ ВЫЗЫВАТЬ В РЕАКТЕ КОД ИЗ НЭТИВ ДОМА ТИПА ИВЕНТ ТАРГЕТОВ, ЕСЛИ МОЖНО ОБОЙТИСЬ БЕЗ,
-КАК В ДАННОМ СЛУЧАЕ, В СЛУЧАЕ БУКМАРКОВ?  */
-
 const Users = () => {
   const [users, setUsers] = useState(API.fetchAll());
 
   const handleDelete = (userId) => {
     const newArr = users.filter((i) => i._id !== userId);
-    /* console.log(123); */
     setUsers(newArr);
   };
 

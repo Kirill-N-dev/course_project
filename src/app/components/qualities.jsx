@@ -1,14 +1,10 @@
 const Qualities = (props) => {
-  const na = props.color.map((i) => i);
-  /*  console.log(na); */
-  return na.map((i, ind) => (
-    <span className={'badge ' + 'bg-' + i + ' m-1'} key={i.length}>
-      {props.name[ind]}
+  //
+  return props.qualities.map((qual) => (
+    <span className={'badge bg-' + qual.color + ' m-1'} key={qual._id}>
+      {qual.name}
     </span>
   ));
-  {
-    /* КЛЮЧ ПОДОБРАН МЕТОДОМ ТЫКА */
-  }
 };
 
 export default Qualities;

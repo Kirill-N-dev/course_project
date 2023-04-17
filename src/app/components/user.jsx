@@ -6,12 +6,7 @@ const User = (props) => {
     <tr key={props._id}>
       <td>{props.name}</td>
       <td>
-        <Qualities
-          color={props.qualities.map((i) => i.color)}
-          name={props.qualities.map((i) => i.name)}
-          id={props._id}
-          key={props._id}
-        />
+        <Qualities qualities={props.qualities} />
       </td>
       <td>{props.profession.name}</td>
       <td>{props.completedMeetings}</td>
