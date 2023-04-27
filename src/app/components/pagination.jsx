@@ -15,7 +15,7 @@ const Pagination = ({
     const pageCount = Math.ceil(itemsCount / pageSize);
     const pages = _.range(1, pageCount + 1);
 
-    if (pageCount === 1) return false;
+    if (pageCount < 2) return false;
     return (
         <nav>
             <ul className="pagination">
