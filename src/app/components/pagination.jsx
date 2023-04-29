@@ -10,8 +10,6 @@ const Pagination = ({
     onPageBack,
     onPageFwd
 }) => {
-    //
-    /*   const { itemsCount, pageSize } = props; */
     const pageCount = Math.ceil(itemsCount / pageSize);
     const pages = _.range(1, pageCount + 1);
 
@@ -61,9 +59,9 @@ Pagination.propTypes = {
     itemsCount: PropTypes.number.isRequired,
     pageSize: PropTypes.number.isRequired,
     currentPage: PropTypes.number.isRequired,
-    onPageChange: PropTypes.func.isRequired,
-    onPageBack: PropTypes.func.isRequired,
-    onPageFwd: PropTypes.func.isRequired
+    onPageChange: PropTypes.func,
+    onPageBack: PropTypes.func,
+    onPageFwd: PropTypes.func
 };
 
 export default Pagination;

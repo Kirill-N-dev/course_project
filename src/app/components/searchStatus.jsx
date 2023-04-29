@@ -19,19 +19,19 @@ const SearchStatus = (props) => {
 
     if (number !== 0) {
         return (
-            <>
+            <div className="d-flex justify-content-center">
                 <div className="p-2 m-1 fs-6 badge bg-primary">
                     {number} {man} {tusa} с тобой сегодня
                 </div>
-            </>
+            </div>
         );
     } else {
         return (
-            <>
+            <div className="d-flex justify-content-center">
                 <div className="p-2 m-1 fs-6 badge bg-danger">
                     Никто с тобой не тусанёт
                 </div>
-            </>
+            </div>
         );
     }
 };
