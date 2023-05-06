@@ -1,137 +1,108 @@
 import React, { useState, useEffect } from "react";
-import api from "../api";
-import SearchStatus from "./searchStatus";
-import User from "./user";
+import PropTypes from "prop-types";
+import { paginate } from "../utils/paginate";
 import Pagination from "./pagination";
+import User from "./user";
+import api from "../api";
 import GroupList from "./groupList";
-
-const Users = () => {
-    const [users, setUsers] = useState();
+import SearchStatus from "./searchStatus";
+const Users = ({ users: allUsers, ...rest }) => {
+    const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfession] = useState();
     const [selectedProf, setSelectedProf] = useState();
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 6;
 
+    const pageSize = 2;
     useEffect(() => {
-        api.users.fetchAll().then((users) => setUsers(users));
-        api.professions
-            .fetchAll()
-            .then((firstProfessions) => setProfession(firstProfessions));
+        api.professions.fetchAll().then((data) => setProfession(data));
     }, []);
-
-    /* useEffect(() => {     // (***1 ВОПРОС) МАКС, КАК ПРАВИЛЬНО, ТАК?
+    useEffect(() => {
         setCurrentPage(1);
-    }, [selectedProf]); */
+    }, [selectedProf]);
 
     const handleProfessionSelect = (item) => {
         setSelectedProf(item);
-        setCurrentPage(1); // ИЛИ ТАК? И ПОЧЕМУ? КАКАЯ РАЗНИЦА? ВРОДЕ ВСЁ ОДНО - ПО КЛИКУ НА ПРОФЕССИЮ.
-    };
-
-    const handleDelete = (userId) => {
-        const newArr = users.filter((i) => i._id !== userId);
-        setUsers(newArr);
-    };
-
-    const handleColorizer = (id) => {
-        const newArr2 = users.map((i) => ({
-            ...i,
-            bookmark: i._id === id ? !i.bookmark : i.bookmark
-        }));
-
-        setUsers(newArr2);
     };
 
     const handlePageChange = (pageIndex) => {
         setCurrentPage(pageIndex);
     };
-
-    const handlePageBack = (currPg) => {
-        const checking = currPg >= 1 ? currPg : 1;
-        setCurrentPage(checking);
-    };
-
-    const handlePageFwd = (currPg, lastPg) => {
-        const checking = currPg <= lastPg ? currPg : lastPg;
-        setCurrentPage(checking);
-    };
-
-    const paginate = (users, currentPage, pageSize) => {
-        const startIndex = (currentPage - 1) * pageSize;
-        return users ? [...users].splice(startIndex, pageSize) : false;
-    };
-
     const filteredUsers = selectedProf
-        ? Object.values(users).filter(
-              (i) => i.profession._id === selectedProf._id
-          ) // тут претиер почему-то отступает кратно 2 (а не 4, как настроено) - странно
-        : users;
+        ? allUsers.filter(
+              (user) =>
+                  JSON.stringify(user.profession) ===
+                  JSON.stringify(selectedProf)
+          )
+        : allUsers;
 
-    const trimUsers = paginate(filteredUsers, currentPage, pageSize);
-
+    const count = filteredUsers.length;
+    const usersCrop = paginate(filteredUsers, currentPage, pageSize);
     const clearFilter = () => {
         setSelectedProf();
     };
 
-    const count = filteredUsers?.length; // Перенёс ниже для верного рендера + добавил проверку
+    useEffect(() => {
+        if (
+            currentPage > Math.ceil(filteredUsers.length / pageSize) &&
+            currentPage > 1
+        ) {
+            setCurrentPage(currentPage - 1);
+        }
+    }, [allUsers]);
 
-    if (users && professions) {
-        // (***2 ВОПРОС)
-        // ВЕРНО ЛИ ТАКОЕ УСЛОВИЕ?
-        return (
-            <>
-                <SearchStatus numb={count} />
-                <div className="d-flex align-items-start">
-                    <div>
-                        <>
-                            <GroupList
-                                items={professions}
-                                onItemSelect={handleProfessionSelect}
-                                onClearFilter={clearFilter}
-                                selectedProf={selectedProf}
-                            />
-                        </>
-                    </div>
-
-                    {
-                        <table className="table table-group-divider">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Имя</th>
-                                    <th scope="col">Качества</th>
-                                    <th scope="col">Профессия</th>
-                                    <th scope="col">Встретился, раз</th>
-                                    <th scope="col">Оценка</th>
-                                    <th scope="col">Избранное</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {trimUsers.map((i) => (
-                                    <User
-                                        {...i}
-                                        handleDelete={handleDelete}
-                                        handleColorizer={handleColorizer}
-                                        key={i._id}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
-                    }
+    return (
+        <div className="d-flex">
+            {professions && (
+                <div className="d-flex flex-column flex-shrink-0 p-3">
+                    <GroupList
+                        selectedItem={selectedProf}
+                        items={professions}
+                        onItemSelect={handleProfessionSelect}
+                    />
+                    <button
+                        className="btn btn-secondary mt-2"
+                        onClick={clearFilter}
+                    >
+                        {" "}
+                        Очистить
+                    </button>
                 </div>
-                {
+            )}
+            <div className="d-flex flex-column">
+                <SearchStatus length={count} />
+                {count > 0 && (
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Имя</th>
+                                <th scope="col">Качества</th>
+                                <th scope="col">Профессия</th>
+                                <th scope="col">Встретился, раз</th>
+                                <th scope="col">Оценка</th>
+                                <th scope="col">Избранное</th>
+                                <th />
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {usersCrop.map((user) => (
+                                <User {...rest} {...user} key={user._id} />
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+                <div className="d-flex justify-content-center">
                     <Pagination
                         itemsCount={count}
                         pageSize={pageSize}
                         currentPage={currentPage}
                         onPageChange={handlePageChange}
-                        onPageBack={handlePageBack}
-                        onPageFwd={handlePageFwd}
                     />
-                }
-            </>
-        );
-    }
+                </div>
+            </div>
+        </div>
+    );
+};
+Users.propTypes = {
+    users: PropTypes.array
 };
 
 export default Users;

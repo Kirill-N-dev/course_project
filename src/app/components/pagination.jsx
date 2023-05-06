@@ -1,67 +1,39 @@
-import _ from "lodash";
 import React from "react";
+import _ from "lodash";
 import PropTypes from "prop-types";
 
-const Pagination = ({
-    itemsCount,
-    pageSize,
-    currentPage,
-    onPageChange,
-    onPageBack,
-    onPageFwd
-}) => {
+const Pagination = ({ itemsCount, pageSize, onPageChange, currentPage }) => {
     const pageCount = Math.ceil(itemsCount / pageSize);
+    if (pageCount === 1) return null;
     const pages = _.range(1, pageCount + 1);
-
-    if (pageCount < 2) return false;
     return (
         <nav>
             <ul className="pagination">
-                <li className="page-item">
-                    <a
-                        className="page-link"
-                        onClick={() => onPageBack(currentPage - 1)}
-                    >
-                        Previous
-                    </a>
-                </li>
-                {pages.map((i) => (
+                {pages.map((page) => (
                     <li
                         className={
-                            "page-item" + (i === currentPage ? " active" : "")
+                            "page-item" +
+                            (page === currentPage ? " active" : "")
                         }
-                        key={i}
+                        key={"page_" + page}
                     >
-                        <a
+                        <button
                             className="page-link"
-                            onClick={() => onPageChange(i)}
+                            onClick={() => onPageChange(page)}
                         >
-                            {i}
-                        </a>
+                            {page}
+                        </button>
                     </li>
                 ))}
-                <li className="page-item">
-                    <a
-                        className="page-link"
-                        onClick={() =>
-                            onPageFwd(currentPage + 1, pages[pages.length - 1])
-                        }
-                    >
-                        Next
-                    </a>
-                </li>
             </ul>
         </nav>
     );
 };
-
 Pagination.propTypes = {
     itemsCount: PropTypes.number.isRequired,
     pageSize: PropTypes.number.isRequired,
-    currentPage: PropTypes.number.isRequired,
-    onPageChange: PropTypes.func,
-    onPageBack: PropTypes.func,
-    onPageFwd: PropTypes.func
+    onPageChange: PropTypes.func.isRequired,
+    currentPage: PropTypes.number.isRequired
 };
 
 export default Pagination;

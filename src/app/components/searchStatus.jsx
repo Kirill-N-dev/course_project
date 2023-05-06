@@ -1,11 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-const SearchStatus = (props) => {
+const SearchStatus = ({ length }) => {
     //
-    const number = props.numb;
-    const lastCount = +String(number)[String(number).length - 1];
-    const penCount = +String(number)[String(number).length - 2];
+
+    const lastCount = +String(length)[String(length).length - 1];
+    const penCount = +String(length)[String(length).length - 2];
     let tusa;
     if (lastCount === 1 && penCount !== 1) tusa = " тусанёт";
     else tusa = " тусанут";
@@ -17,11 +16,11 @@ const SearchStatus = (props) => {
         man = " человека";
     } else man = " человек";
 
-    if (number !== 0) {
+    if (length !== 0) {
         return (
             <div className="d-flex justify-content-center">
                 <div className="p-2 m-1 fs-6 badge bg-primary">
-                    {number} {man} {tusa} с тобой сегодня
+                    {length} {man} {tusa} с тобой сегодня
                 </div>
             </div>
         );
@@ -37,7 +36,7 @@ const SearchStatus = (props) => {
 };
 
 SearchStatus.propTypes = {
-    numb: PropTypes.number.isRequired
+    length: PropTypes.number
 };
 
 export default SearchStatus;
