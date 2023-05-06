@@ -4,7 +4,7 @@ import Qualities from "./qualities";
 import PropTypes from "prop-types";
 
 const User = (props) => {
-    /*   console.log(props); */
+    //
     return (
         <tr key={props._id}>
             <td>{props.name}</td>
