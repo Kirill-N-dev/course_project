@@ -1,7 +1,7 @@
-import Users from './app/components/users';
+import Users from "./app/components/users";
 
 const App = () => {
-  return Users;
+    return Users;
 };
 
 export default App;
