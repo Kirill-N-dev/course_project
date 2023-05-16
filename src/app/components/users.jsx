@@ -12,20 +12,28 @@ const Users = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfession] = useState();
     const [selectedProf, setSelectedProf] = useState();
-    const [sortBy, setSortBy] = useState({ iter: "name", order: "asc" });
+    const initialSort = { iter: "name", order: "asc" };
+    const [sortBy, setSortBy] = useState(initialSort);
     const pageSize = 4;
 
-    // Ниже кусок из App
     const [users, setUsers] = useState();
     useEffect(() => {
         api.users.fetchAll().then((data) => setUsers(data));
+        /* api.users.getById().then((data) => setUsers(data)); */ // !!!!!!!!!!!
+        api.professions.fetchAll().then((data) => setProfession(data));
     }, []);
+
+    // Добавил возврат на 1ю страницу при сортировке
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedProf]);
+
     const handleDelete = (userId) => {
         setUsers(users.filter((user) => user._id !== userId));
     };
 
-    // НИЖЕ ВЕРОЯТНО ОШИБОЧНАЯ ФУНКЦИЯ. ПО КЛИКЕ НЕ ДОЛЖЕН ОБНОВЛЯТЬСЯ СТЕЙТ.
-    // ИЗ РЕШЕНИЙ, ИЛИ ПИСАЛ САМ - НЕ ПОМНЮ. МАКС СКАЖИ, КАК ПРАВИЛЬНО? МОГУ ЕЁ ПЕРЕПИСАТЬ.
+    // При сортировке букмарков и последующих кликах на сердечки они почему-то автоматически сортируются,
+    // имхо неправильное поведение.
     const handleToggleBookMark = (id) => {
         setUsers(
             users.map((user) => {
@@ -36,14 +44,6 @@ const Users = () => {
             })
         );
     };
-    // Выше кусок из App
-
-    useEffect(() => {
-        api.professions.fetchAll().then((data) => setProfession(data));
-    }, []);
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedProf]);
 
     const handleProfessionSelect = (item) => {
         setSelectedProf(item);
@@ -57,33 +57,9 @@ const Users = () => {
         setSortBy(item);
     };
 
-    let filteredUsers; // добавил, см. коммент ниже
-    useEffect(() => {
-        if (
-            filteredUsers && // добавил, см. коммент ниже
-            currentPage > Math.ceil(filteredUsers.length / pageSize) &&
-            currentPage > 1
-        ) {
-            setCurrentPage(currentPage - 1);
-        }
-    }, [users]);
-
     if (users) {
-        // этого нет пробить.
-        // Макс, куда это девать? Я написал решение, но оно со стейтом и юзэфектом,
-        // там был баг, что пагинация и статус появлялись, пока юзеры и профессии ещё не пришли. Много кода.
-        // А обернуть код ниже в users выдаёт ошибку увеличеняи рендеров - как парвильно? Верно ли я решил?
-
-        /*  useEffect(() => {
-            if (
-                currentPage > Math.ceil(filteredUsers.length / pageSize) &&
-                currentPage > 1
-            ) {
-                setCurrentPage(currentPage - 1);
-            }
-        }, [users]); */
-
-        filteredUsers = selectedProf // убрал const
+        //
+        const filteredUsers = selectedProf
             ? users.filter(
                   (user) =>
                       JSON.stringify(user.profession) ===
@@ -92,6 +68,7 @@ const Users = () => {
             : users;
 
         const count = filteredUsers.length;
+
         const sortedUsers = _.orderBy(
             filteredUsers,
             [sortBy.path],
@@ -102,6 +79,11 @@ const Users = () => {
         const clearFilter = () => {
             setSelectedProf();
         };
+
+        // Переход на прошлую страницу, если юзеров на странице больше нет
+        if (usersCrop.length < 1 && currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
 
         return (
             <div className="d-flex">

@@ -5,6 +5,10 @@ import TableBody from "./tableBody";
 import BookMark from "./bookmark";
 import QualitiesList from "./qualitiesList";
 import Table from "./table";
+import { Link } from "react-router-dom";
+/* import User from "./user"; */
+
+// ОБЪЕКТ ДЛЯ ИТЕРАЦИИ COLUMNS, СБОРКА HEADER И BODY
 
 const UsersTable = ({
     users,
@@ -15,27 +19,34 @@ const UsersTable = ({
     ...rest
 }) => {
     //
+    // КАК columns ЭКСПОРТИРОВАТЬ В USER?
+    //
     const columns = {
-        name: { path: "name", name: "Имя", active: false },
+        name: {
+            path: "name",
+            name: "Имя",
+            component: (user) => (
+                <Link to={`/users/${user._id}`}> {user.name} </Link>
+            )
+        },
         qualities: {
             name: "Качества",
             component: (user) => <QualitiesList qualities={user.qualities} />
         },
         professions: {
             path: "profession.name",
-            name: "Профессия",
-            active: false
+            name: "Профессия"
         },
         completedMeetings: {
             path: "completedMeetings",
-            name: "Встретился, раз",
-            active: false
+            name: "Встретился, раз"
         },
-        rate: { path: "rate", name: "Оценка", active: false },
+        rate: { path: "rate", name: "Оценка" },
         bookmark: {
-            path: "bookmark",
+            /* path: "bookmark", */
+            // Макс, если делать сортировку не покидая currentPage, баг остаётся, потому я её отключил
             name: "Избранное",
-            active: false,
+
             component: (user) => (
                 <BookMark
                     status={user.bookmark}
@@ -66,7 +77,7 @@ const UsersTable = ({
                     columns
                 }}
             />
-            <TableBody {...{ columns, data: users }} />
+            <TableBody {...{ columns, usersCrop: users }} />
         </Table>
         /* <Table
             onSort={onSort}
