@@ -9,13 +9,6 @@
 # Работает:
 .text
 
-# Почему не работает?
-.eslintignore
-.eslintrc.js
-.prettierrc.js
-package-lock.json
-package.json
-
 # testing
 /coverage
 
