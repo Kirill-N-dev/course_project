@@ -63,7 +63,7 @@ const users = [
     {
         _id: "67rdca3eeb7f6fgeed471818",
         name: "Рэйчел Грин",
-        profession: professions.waiter,
+        profession: professions.doctor, // !!! waiter
         qualities: [qualities.uncertain],
         completedMeetings: 148,
         rate: 3.5,
@@ -72,7 +72,7 @@ const users = [
     {
         _id: "67rdca3eeb7f6fgeed471819",
         name: "Шелдон Купер",
-        profession: professions.physics,
+        profession: professions.doctor, // !!! physics
         qualities: [qualities.strange, qualities.tedious],
         completedMeetings: 37,
         rate: 4.6,
@@ -147,9 +147,18 @@ const fetchAll = () =>
     new Promise((resolve) => {
         window.setTimeout(function () {
             resolve(users);
-        }, 2000);
+        }, 200);
+    });
+
+// Получение {} юзера по id
+const getById = (id) =>
+    new Promise((resolve) => {
+        window.setTimeout(function () {
+            resolve(users.find((user) => user._id === id));
+        }, 100);
     });
 
 export default {
-    fetchAll
+    fetchAll,
+    getById
 };
