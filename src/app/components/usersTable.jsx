@@ -1,11 +1,12 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import TableHeader from "./tableHeader";
 import TableBody from "./tableBody";
 import BookMark from "./bookmark";
 import QualitiesList from "./qualitiesList";
 import Table from "./table";
-import { Link } from "react-router-dom";
+
 /* import User from "./user"; */
 
 // ОБЪЕКТ ДЛЯ ИТЕРАЦИИ COLUMNS, СБОРКА HEADER И BODY

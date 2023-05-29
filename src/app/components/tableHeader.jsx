@@ -65,7 +65,6 @@ const TableHeader = ({ onSort, selectedSort, columns }) => {
                                   }
                                 : undefined
                         }
-                        /*  {...{ role: columns[column].path && "button" }} */
                         scope="col"
                     >
                         {columns[column].name}

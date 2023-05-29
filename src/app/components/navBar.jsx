@@ -1,5 +1,4 @@
 import React from "react";
-/* import PropTypes from "prop-types"; */
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
@@ -8,7 +7,7 @@ const NavBar = () => {
         <>
             <ul className="nav">
                 <li className="nav-item">
-                    <Link className="nav-link" to="/main">
+                    <Link className="nav-link" to="/">
                         Main
                     </Link>
                 </li>

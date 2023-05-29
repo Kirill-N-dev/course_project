@@ -7,19 +7,20 @@ import GroupList from "./groupList";
 import SearchStatus from "./searchStatus";
 import UsersTable from "./usersTable";
 import _ from "lodash";
+import Search from "./search";
 
-const Users = () => {
+const UsersList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfession] = useState();
     const [selectedProf, setSelectedProf] = useState();
     const initialSort = { iter: "name", order: "asc" };
     const [sortBy, setSortBy] = useState(initialSort);
     const pageSize = 4;
-
+    /* console.log(api); */ // {users, professions}
     const [users, setUsers] = useState();
+
     useEffect(() => {
         api.users.fetchAll().then((data) => setUsers(data));
-        /* api.users.getById().then((data) => setUsers(data)); */ // !!!!!!!!!!!
         api.professions.fetchAll().then((data) => setProfession(data));
     }, []);
 
@@ -33,7 +34,7 @@ const Users = () => {
     };
 
     // При сортировке букмарков и последующих кликах на сердечки они почему-то автоматически сортируются,
-    // имхо неправильное поведение.
+    // В итоге я отключил их сортировку.
     const handleToggleBookMark = (id) => {
         setUsers(
             users.map((user) => {
@@ -46,6 +47,8 @@ const Users = () => {
     };
 
     const handleProfessionSelect = (item) => {
+        api.users.fetchAll().then((data) => setUsers(data)); // реализация сброса юзеров до заводских))
+        document.querySelector("input").value = ""; // сброс value of input of search.jsx
         setSelectedProf(item);
     };
 
@@ -98,13 +101,17 @@ const Users = () => {
                             className="btn btn-secondary mt-2"
                             onClick={clearFilter}
                         >
-                            {" "}
                             Очистить
                         </button>
                     </div>
                 )}
                 <div className="d-flex flex-column">
                     <SearchStatus length={count} />
+                    <Search
+                        setUsers={setUsers}
+                        clearFilter={clearFilter}
+                        api={api}
+                    />
                     {count > 0 && (
                         <UsersTable
                             users={usersCrop}
@@ -114,6 +121,7 @@ const Users = () => {
                             onDelete={handleDelete}
                         />
                     )}
+
                     <div className="d-flex justify-content-center">
                         <Pagination
                             itemsCount={count}
@@ -128,8 +136,8 @@ const Users = () => {
     } else return "loading...";
 };
 
-Users.propTypes = {
+UsersList.propTypes = {
     users: PropTypes.array
 };
 
-export default Users;
+export default UsersList;

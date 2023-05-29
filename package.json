@@ -1,5 +1,5 @@
 {
-    "name": "fast_company",
+    "name": "fast-company",
     "version": "0.1.0",
     "private": true,
     "dependencies": {
@@ -11,6 +11,8 @@
         "lodash": "^4.17.15",
         "proptypes": "^1.1.0",
         "react": "^18.2.0",
+        "react-router": "^5.3.3",
+        "react-router-dom": "^5.3.3",
         "react-dom": "^18.2.0",
         "react-scripts": "5.0.1",
         "web-vitals": "^2.1.4"
@@ -41,6 +43,7 @@
         ]
     },
     "devDependencies": {
+        "@types/react-router-dom": "^5.3.3",
         "eslint": "^8.41.0",
         "eslint-config-standard": "^17.0.0",
         "eslint-plugin-import": "^2.27.5",
