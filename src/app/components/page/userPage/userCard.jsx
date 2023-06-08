@@ -10,7 +10,9 @@ const UserCard = ({ userId }) => {
     const [user, getUserById] = useState();
     useEffect(() => {
         api.users.getById(userId).then((usr) => getUserById(usr));
+        console.log(user);
     }, []);
+
     const handleClick = ({ target }) => {
         /* console.log(history); */
         target.name === "allUsers"
@@ -28,6 +30,9 @@ const UserCard = ({ userId }) => {
                 </h6>
                 <h6>completedMeetings: {user.completedMeetings}</h6>
                 <h4>Rate: {user.rate}</h4>
+
+                <h6 style={{ color: "red" }}>{user.email}</h6>
+
                 <button
                     className="btn btn-light"
                     style={{

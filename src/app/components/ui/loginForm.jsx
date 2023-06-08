@@ -89,7 +89,7 @@ const LoginForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="" onSubmit={handleSubmit}>
             <TextField
                 label="Почта"
                 id="email"

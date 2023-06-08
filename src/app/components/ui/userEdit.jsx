@@ -16,7 +16,6 @@ const UserEdit = ({ userId }) => {
     const [data, setData] = useState({
         email: "",
         profession: "",
-        qualities: [],
         name: ""
     });
 
@@ -28,20 +27,15 @@ const UserEdit = ({ userId }) => {
     const [errorsObj, setErrors] = useState({});
     const [professions, setProfession] = useState([]);
 
-    // Асинхронное получение всех профессий и качеств
-    useEffect(() => {
-        api.professions.fetchAll().then((data) => setProfession(data));
-        api.qualities.fetchAll().then((data) => setQualities(data));
-    }, []);
-
     // Верхний запрос - юзера
     useEffect(() => {
         api.users.getById(userId).then((data) => {
-            setData({
+            setData((prevState) => ({
+                ...prevState,
                 ...data,
                 profession: data.profession._id,
                 qualities: transformData(data.qualities)
-            });
+            }));
         });
         api.professions.fetchAll().then((data) => {
             const professionsList = Object.keys(data).map((professionName) => ({
@@ -70,17 +64,17 @@ const UserEdit = ({ userId }) => {
 
     // Непонятно зачем это?
     const transformData = (data) => {
-        data.map((i) => ({ value: i._id, label: i.name }));
+        return data.map((i) => ({ value: i._id, label: i.name }));
     };
 
-    // Скрыто для валидации только по сабмиту (ОТКРЫЛ)
-    useEffect(() => {
+    // Скрыто для валидации только по сабмиту
+    /*  useEffect(() => {
         validate(); // первое применение метода validate() - изменение стейта полей ввода
-    }, [data]);
+    }, [data]); */
 
     const handleChange = (target) => {
         setData((prevState) => ({ ...prevState, [target.name]: target.value }));
-        console.log(target.name, target.value);
+        /* console.log(target.name, target.value); */ // email bob007@tw.co
     };
 
     // Изменён, родной в формах
