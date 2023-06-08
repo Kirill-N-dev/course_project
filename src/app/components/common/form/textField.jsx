@@ -5,12 +5,16 @@ const TextField = ({ label, type, name, value, onChange, error }) => {
     //
     const [showPassword, setShowPassword] = useState(false);
 
+    const handleChange = (ev) => {
+        onChange({ name: ev.target.name, value: ev.target.value });
+    };
+
     const getInputClasses = () =>
         `form-control ${error ? "is-invalid" : "is-valid"}`;
 
     // тест
-    const getInputStyle = () => (error ? "" : "borderRadius: '0 !important'");
-    console.log(getInputStyle());
+    /*  const getInputStyle = () => (error ? "" : "borderRadius: '0 !important'");
+    console.log(getInputStyle()); */
     // тест
 
     // МАКС, тут баг, в случае верного пароля у поля появляется радиус. Даже без is-valid.
@@ -32,7 +36,7 @@ const TextField = ({ label, type, name, value, onChange, error }) => {
                     id={name}
                     name={name}
                     value={value}
-                    onChange={onChange}
+                    onChange={handleChange} // сменил
                 />
                 {type === "password" && (
                     <button

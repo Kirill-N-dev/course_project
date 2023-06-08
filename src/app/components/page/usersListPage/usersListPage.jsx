@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { paginate } from "../utils/paginate";
-import Pagination from "./pagination";
-import api from "../api";
-import GroupList from "./groupList";
-import SearchStatus from "./searchStatus";
-import UsersTable from "./usersTable";
+import { paginate } from "../../../utils/paginate";
+import Pagination from "../../common/pagination";
+import api from "../../../api";
+import GroupList from "../../common/groupList";
+import SearchStatus from "../../ui/searchStatus";
+import UsersTable from "../../ui/usersTable";
 import _ from "lodash";
-import Search from "./search";
 
-const UsersList = () => {
+const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfession] = useState();
     const [selectedProf, setSelectedProf] = useState();
@@ -18,9 +17,14 @@ const UsersList = () => {
     const pageSize = 4;
     /* console.log(api); */ // {users, professions}
     const [users, setUsers] = useState();
+    const [searchValue, setSearchValue] = useState();
 
     useEffect(() => {
-        api.users.fetchAll().then((data) => setUsers(data));
+        api.users.fetchAll().then((data) => {
+            setUsers(data);
+            /* console.log(usersForSearch, users, data); */ // undef undef 12
+        });
+
         api.professions.fetchAll().then((data) => setProfession(data));
     }, []);
 
@@ -47,9 +51,8 @@ const UsersList = () => {
     };
 
     const handleProfessionSelect = (item) => {
-        api.users.fetchAll().then((data) => setUsers(data)); // реализация сброса юзеров до заводских))
-        document.querySelector("input").value = ""; // сброс value of input of search.jsx
         setSelectedProf(item);
+        setSearchValue("");
     };
 
     const handlePageChange = (pageIndex) => {
@@ -62,7 +65,11 @@ const UsersList = () => {
 
     if (users) {
         //
-        const filteredUsers = selectedProf
+        const filteredUsers = searchValue
+            ? users.filter((user) =>
+                  user.name.toLowerCase().includes(searchValue.toLowerCase())
+              )
+            : selectedProf
             ? users.filter(
                   (user) =>
                       JSON.stringify(user.profession) ===
@@ -79,8 +86,16 @@ const UsersList = () => {
         );
 
         const usersCrop = paginate(sortedUsers, currentPage, pageSize);
+
         const clearFilter = () => {
             setSelectedProf();
+        };
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        const handleSearchChange = ({ target }) => {
+            clearFilter(); // это для того, чтобы сбросить фильтрацию по профессии при начале поиска
+            setSearchValue(target.value);
         };
 
         // Переход на прошлую страницу, если юзеров на странице больше нет
@@ -107,11 +122,16 @@ const UsersList = () => {
                 )}
                 <div className="d-flex flex-column">
                     <SearchStatus length={count} />
-                    <Search
-                        setUsers={setUsers}
-                        clearFilter={clearFilter}
-                        api={api}
-                    />
+                    <div className="d-flex">
+                        <input
+                            name="searchQuery"
+                            type="text"
+                            placeholder="Search..."
+                            className="form-control flex-grow-1"
+                            onChange={handleSearchChange}
+                            value={searchValue}
+                        ></input>
+                    </div>
                     {count > 0 && (
                         <UsersTable
                             users={usersCrop}
@@ -136,8 +156,8 @@ const UsersList = () => {
     } else return "loading...";
 };
 
-UsersList.propTypes = {
+UsersListPage.propTypes = {
     users: PropTypes.array
 };
 
-export default UsersList;
+export default UsersListPage;

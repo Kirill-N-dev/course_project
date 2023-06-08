@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import QualitiesList from "./qualitiesList";
+import { Qualities } from "../../ui/qualities";
 import { useHistory } from "react-router-dom";
-import api from "../api";
+import api from "../../../api";
 
 const UserCard = ({ userId }) => {
     //
@@ -10,9 +10,12 @@ const UserCard = ({ userId }) => {
     const [user, getUserById] = useState();
     useEffect(() => {
         api.users.getById(userId).then((usr) => getUserById(usr));
-    });
-    const handleClick = () => {
-        history.push("/users");
+    }, []);
+    const handleClick = ({ target }) => {
+        /* console.log(history); */
+        target.name === "allUsers"
+            ? history.push("/users")
+            : history.push(`/users/${userId}/edit`);
     };
     //
     if (user) {
@@ -21,18 +24,29 @@ const UserCard = ({ userId }) => {
                 <h1>{user.name}</h1>
                 <h4>Профессия: {user.profession.name}</h4>
                 <h6>
-                    <QualitiesList qualities={user.qualities} />
+                    <Qualities qualities={user.qualities} />
                 </h6>
                 <h6>completedMeetings: {user.completedMeetings}</h6>
                 <h4>Rate: {user.rate}</h4>
                 <button
-                    className="btn btn-outline-light"
+                    className="btn btn-light"
                     style={{
                         border: "1px solid blue"
                     }}
                     onClick={handleClick}
+                    name="allUsers"
                 >
                     Все пользователи
+                </button>
+                <button
+                    className="btn btn-light mx-2"
+                    style={{
+                        border: "1px solid blue"
+                    }}
+                    onClick={handleClick}
+                    name="edit"
+                >
+                    Редактировать
                 </button>
             </ul>
         );

@@ -63,7 +63,7 @@ const users = [
     {
         _id: "67rdca3eeb7f6fgeed471818",
         name: "Рэйчел Грин",
-        profession: professions.doctor, // !!! waiter
+        profession: professions.waiter,
         qualities: [qualities.uncertain],
         completedMeetings: 148,
         rate: 3.5,
@@ -72,7 +72,7 @@ const users = [
     {
         _id: "67rdca3eeb7f6fgeed471819",
         name: "Шелдон Купер",
-        profession: professions.doctor, // !!! physics
+        profession: professions.physics,
         qualities: [qualities.strange, qualities.tedious],
         completedMeetings: 37,
         rate: 4.6,
@@ -143,22 +143,42 @@ const users = [
     }
 ];
 
+// Запись в локалсторидж юзеров
+localStorage.getItem("users") ||
+    localStorage.setItem("users", JSON.stringify(users));
+
+// Обновлённая функция по получению юзеров из локалсторидж
 const fetchAll = () =>
     new Promise((resolve) => {
         window.setTimeout(function () {
-            resolve(users);
-        }, 200);
+            resolve(JSON.parse(localStorage.getItem("users")));
+        }, 2000);
     });
 
-// Получение {} юзера по id
+// Асинхронный метод изменения конкретного юзера из локалсторидж
+const updateUsers = (id, data) =>
+    new Promise((resolve) => {
+        const users = JSON.parse(localStorage.getItem("users"));
+        const userIndex = users.findIndex((user) => user._id === id);
+        users[userIndex] = { ...users[userIndex], ...data };
+        localStorage.setItem("users", JSON.stringify(users));
+        resolve(users[userIndex]);
+    });
+
+// Обновлённая функция по получению юзера по id из локалсторидж
 const getById = (id) =>
     new Promise((resolve) => {
         window.setTimeout(function () {
-            resolve(users.find((user) => user._id === id));
-        }, 100);
+            resolve(
+                JSON.parse(localStorage.getItem("users")).find(
+                    (user) => user._id === id
+                )
+            );
+        }, 1000);
     });
 
 export default {
     fetchAll,
-    getById
+    getById,
+    updateUsers
 };

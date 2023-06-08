@@ -6,7 +6,11 @@ export const validator = (data, config) => {
         let statusValidate;
         switch (validateMethod) {
             case "isRequired": {
-                statusValidate = data.trim() === "";
+                if (typeof data === "boolean") {
+                    statusValidate = !data;
+                } else {
+                    statusValidate = data.trim() === "";
+                }
                 break;
             }
             case "isEmail": {
