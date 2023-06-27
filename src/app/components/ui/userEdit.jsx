@@ -143,7 +143,7 @@ const UserEdit = ({ userId }) => {
 
         const { profession, qualities } = data;
 
-        await api.users.updateUsers(userId, {
+        await api.users.update(userId, {
             ...data,
             profession: getProfessionById(profession),
             qualities: getQualities(qualities)
@@ -193,9 +193,16 @@ const UserEdit = ({ userId }) => {
                             />
                             <button
                                 /* disabled={!isValid} */
-                                className="btn btn-primary w-100 mx-auto"
+                                className="btn btn-primary w-100 mx-auto mb-2"
                             >
                                 Обновить
+                            </button>
+                            <button
+                                type="button"
+                                onClick={history.goBack}
+                                className="btn btn-primary w-100 mx-auto"
+                            >
+                                Назад
                             </button>
                         </form>
                     </div>

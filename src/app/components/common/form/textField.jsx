@@ -6,21 +6,14 @@ const TextField = ({ label, type, name, value, onChange, error }) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (ev) => {
+        console.log(ev.target);
         onChange({ name: ev.target.name, value: ev.target.value });
     };
 
     const getInputClasses = () =>
         `form-control ${error ? "is-invalid" : "is-valid"}`;
 
-    // тест
-    /*  const getInputStyle = () => (error ? "" : "borderRadius: '0 !important'");
-    console.log(getInputStyle()); */
-    // тест
-
-    // МАКС, тут баг, в случае верного пароля у поля появляется радиус. Даже без is-valid.
-    // Bootstrap 5.2.3. Перепроверь мои классы пожалуйста.
-
-    // И почему в строке 26 не появляется атрибут?
+    // Тут баг, в случае верного пароля у поля появляется радиус. Даже без is-valid (старое).
 
     const toggleShowPassword = () => {
         setShowPassword(!showPassword);
