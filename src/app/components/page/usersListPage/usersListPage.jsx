@@ -7,6 +7,7 @@ import GroupList from "../../common/groupList";
 import SearchStatus from "../../ui/searchStatus";
 import UsersTable from "../../ui/usersTable";
 import _ from "lodash";
+import { useUser } from "../../../hooks/useUsers";
 
 const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -16,14 +17,17 @@ const UsersListPage = () => {
     const [sortBy, setSortBy] = useState(initialSort);
     const pageSize = 4;
     /* console.log(api); */ // {users, professions}
-    const [users, setUsers] = useState();
     const [searchValue, setSearchValue] = useState();
 
+    // Новый код вместо удалённого стейта
+    const { users } = useUser();
+    /*     console.log(users); */
+
+    // Автор удалил весь эффект, но там не было профессий
     useEffect(() => {
-        api.users.fetchAll().then((data) => {
+        /* api.users.fetchAll().then((data) => {
             setUsers(data);
-            /* console.log(usersForSearch, users, data); */ // undef undef 12
-        });
+        }); */
 
         api.professions.fetchAll().then((data) => setProfession(data));
     }, []);
@@ -34,20 +38,21 @@ const UsersListPage = () => {
     }, [selectedProf]);
 
     const handleDelete = (userId) => {
-        setUsers(users.filter((user) => user._id !== userId));
+        /* setUsers(users.filter((user) => user._id !== userId)); */
+        console.log(111);
     };
 
     // При сортировке букмарков и последующих кликах на сердечки они почему-то автоматически сортируются,
     // В итоге я отключил их сортировку.
     const handleToggleBookMark = (id) => {
-        setUsers(
-            users.map((user) => {
-                if (user._id === id) {
-                    return { ...user, bookmark: !user.bookmark };
-                }
-                return user;
-            })
-        );
+        const newArray = users.map((user) => {
+            if (user._id === id) {
+                return { ...user, bookmark: !user.bookmark };
+            }
+            return user;
+        });
+
+        console.log(newArray);
     };
 
     const handleProfessionSelect = (item) => {

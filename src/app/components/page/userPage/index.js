@@ -1,2 +1,2 @@
-import UserCard from "./userCard";
-export default UserCard;
+import UserPage from "./userPage";
+export default UserPage;

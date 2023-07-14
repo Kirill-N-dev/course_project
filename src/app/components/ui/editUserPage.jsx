@@ -7,6 +7,7 @@ import { MultiSelectField } from "./qualities";
 import PropTypes from "prop-types";
 
 import { useHistory } from "react-router-dom";
+import BackButton from "../common/backButton";
 
 // qualities - все доступные качества юзеров, приходят асинхронно {{alc:{name:...}},{}...} obj values
 // data - {} выбранного юзера (data.qualities - [{...name:...},{}...])
@@ -197,13 +198,7 @@ const UserEdit = ({ userId }) => {
                             >
                                 Обновить
                             </button>
-                            <button
-                                type="button"
-                                onClick={history.goBack}
-                                className="btn btn-primary w-100 mx-auto"
-                            >
-                                Назад
-                            </button>
+                            <BackButton />
                         </form>
                     </div>
                 )}

@@ -4,10 +4,12 @@ import PropTypes from "prop-types";
 import BookMark from "../common/bookmark";
 import { Qualities } from "./qualities";
 import Table, { TableBody, TableHeader } from "../common/table";
+import Profession from "./profession";
 
 /* import User from "./user"; */
 
 // ОБЪЕКТ ДЛЯ ИТЕРАЦИИ COLUMNS, СБОРКА HEADER И BODY
+// ИЗМЕНЯЛОСЬ ПОЛЕ ДЛЯ ПРОФЕССИЙ (И КАЧЕСТВ) В 14 НЕДЕЛЕ, 27 УРОКЕ И В ДОМАШКЕ
 
 const UsersTable = ({
     users,
@@ -29,11 +31,11 @@ const UsersTable = ({
             )
         },
         qualities: {
-            name: "Качества",
-            component: (user) => <Qualities qualities={user.qualities} />
+            component: (user) => <Qualities qualities={user.qualities} />,
+            name: "Качества"
         },
         professions: {
-            path: "profession.name",
+            component: (user) => <Profession id={user.profession} />,
             name: "Профессия"
         },
         completedMeetings: {
