@@ -7,7 +7,7 @@ const Profession = ({ id }) => {
     const { loading, getProfession } = useProf();
     const prof = getProfession(id);
     if (loading) {
-        return "loading";
+        return "loading777";
     } else return <p>{prof.name}</p>;
 };
 

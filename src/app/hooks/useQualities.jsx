@@ -12,6 +12,7 @@ export const useQual = () => {
 // Кастомный хук, если верно
 export const QualitiesProvider = ({ children }) => {
     //
+    const [loading, setLoading] = useState(true);
     const [qualities, setQualities] = useState([]);
     const [error, setError] = useState(null);
 
@@ -47,6 +48,7 @@ export const QualitiesProvider = ({ children }) => {
         try {
             const { content } = await qualitiesService.get();
             setQualities(content);
+            setLoading(false);
 
             console.log(content, 888);
             //
@@ -56,7 +58,9 @@ export const QualitiesProvider = ({ children }) => {
     }
 
     return (
-        <QualitiesContext.Provider value={{ qualities, getTheQualities }}>
+        <QualitiesContext.Provider
+            value={{ loading, qualities, getTheQualities }}
+        >
             {children}
         </QualitiesContext.Provider>
     );
