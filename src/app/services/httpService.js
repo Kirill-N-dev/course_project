@@ -5,16 +5,19 @@ import configFile from "../config.json";
 // ниже код с добавкой метода сентри и тоаст библиотеки
 
 // Схема такая: серверное приложение запущено на 4000 порте. Ендпойнт ниже это как раз прослушка оного
+// Строка ниже - новая, экземпляр объекта эксиос, из урока по ФБ-8
+const http = axios.create({ baseURL: configFile.apiEndpoint });
 
-axios.defaults.baseURL = configFile.apiEndpoint;
+// Нижний код комментируется после урока ФБ-8
+/* axios.defaults.baseURL = configFile.apiEndpoint; */
 /* console.log(axios.defaults.baseURL); */
 
 // Обработка запроса на сервер (из недели феирбейса) (почти копипаста с https://axios-http.com/docs/interceptors)
-axios.interceptors.request.use(
+http.interceptors.request.use(
     //
     function (config) {
         // Do something before request is sent
-        console.log(config, 321);
+        /* console.log(config, 321); */
         if (configFile.isFirebase) {
             //
             // Для ендпойнта (проверка на конечный слеш)
@@ -45,9 +48,9 @@ const transformData = (data) => {
 };
 
 // Обработка ответа сервера
-axios.interceptors.response.use(
+http.interceptors.response.use(
     (data) => {
-        console.log(transformData(data), 44);
+        /* console.log(transformData(data), 44); */
         /* console.log(data.data, "всё ок", 678); */
         if (configFile.isFirebase) {
             data.data = { content: transformData(data.data) };
@@ -72,10 +75,10 @@ axios.interceptors.response.use(
 );
 
 const httpService = {
-    get: axios.get,
-    post: axios.post,
-    put: axios.put,
-    delete: axios.delete
+    get: http.get,
+    post: http.post,
+    put: http.put,
+    delete: http.delete
 };
 
 export default httpService;

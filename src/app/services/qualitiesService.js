@@ -10,7 +10,6 @@ const qualitiesEndpoint = "quality/";
 const qualitiesService = {
     get: async () => {
         const { data } = await httpService.get(qualitiesEndpoint);
-        console.log(123321);
         return data;
     }
 };

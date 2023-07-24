@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import TextField from "../common/form/textField";
 import { validator } from "../../utils/validator";
 import CheckBoxField from "../common/form/checkBoxField";
+import { useAuth } from "../../hooks/useAuth";
+import { useHistory } from "react-router";
 /* import * as yup from "yup"; */
 
 const LoginForm = () => {
@@ -19,7 +21,11 @@ const LoginForm = () => {
     /*   useEffect(() => {
         validate(); // первое применение метода validate() - изменение стейта полей ввода
     }, [data]); */
-    //
+
+    // ДЛЯ ДОМАШККККИ, ПРОВЕДЕНИЕ ПРОПСА ЧЕРЕЗ КАСТОМНЫЙ ХУК
+    const { logIn } = useAuth();
+    const history = useHistory();
+
     const handleChange = (target) => {
         setData((prevState) => ({ ...prevState, [target.name]: target.value }));
     };
@@ -81,11 +87,26 @@ const LoginForm = () => {
     // Надо для смены класса disabled у кнопки в самом низу, но ввиду отключения юсстейта это пока не работает
     /* const isValid = Object.keys(errorsObj).length === 0; */
 
-    const handleSubmit = (ev) => {
+    const handleSubmit = async (ev) => {
         ev.preventDefault();
         const isValid = validate(); // второе применение метода validate() - перед отправкой формы
         if (!isValid) return false; // если есть ошибки, отправки формы не будет
         console.log("отправлено");
+        // ДОМАШКА:
+        // Сначала копипаста
+        console.log(data, 888666);
+
+        /*  const newData = {
+            ...data,
+            qualities: data.qualities.map((q) => q.value)
+        }; */
+
+        try {
+            await logIn(data);
+            history.push("/");
+        } catch (error) {
+            setErrors(error);
+        }
     };
 
     return (

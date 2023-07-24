@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState /* useEffect */ } from "react";
 import TextField from "../common/form/textField";
 import { validator } from "../../utils/validator";
-import api from "../../api";
+/* import api from "../../api"; */
 import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "./qualities/multiSelectField";
 import CheckBoxField from "../common/form/checkBoxField";
+import { useQual } from "../../hooks/useQualities";
+import { useProf } from "../../hooks/useProfession";
+import { useAuth } from "../../hooks/useAuth";
+import { useHistory } from "react-router";
 
 const RegisterForm = () => {
     const [data, setData] = useState({
@@ -16,14 +20,43 @@ const RegisterForm = () => {
         qualities: [],
         license: false
     });
-    const [qualities, setQualities] = useState([]);
+
+    // Код ниже заменяется кастомными хуками, и качества с профессиями теперь берутся с ФБ
+    /*  const [qualities, setQualities] = useState([]);
+    const [professions, setProfession] = useState({}); */
+
+    // Первая строка с запила урока "метод Signup"
+    const { signUp } = useAuth();
+    const { qualities } = useQual();
+    const { professions } = useProf();
+
     const [errorsObj, setErrors] = useState({});
-    const [professions, setProfession] = useState({}); // {} пофиксил сам
+    const history = useHistory();
+
+    // ПОЗДНЕЙШАЯ ПРАВКА КВАЛИТИС ДЛЯ ПЕРЕДАЧИ В МУЛЬТИСЕЛЕКТФИЛД (ВЫВОД КАЧЕСТВ):
+    const qualitiesList = qualities.map((q) => ({
+        label: q.name,
+        value: q._id
+    }));
+
+    // ПОЗДНЕЙШАЯ ПРАВКА ПРОФЕШНС ДЛЯ ПЕРЕДАЧИ В МУЛЬТИСЕЛЕКТФИЛД (ВЫВОД КАЧЕСТВ):
+    const professionsList = professions.map((q) => ({
+        label: q.name,
+        value: q._id
+    }));
+
+    // Проверка прихода данных с ФБ (ошибка с ключами)
+    /* useEffect(() => {
+        console.log(professions, 4321);
+    }, [professions]); */
+
     /* useEffect(() => {
         api.professions.fetchAll().then((data) => setProfession(data));
         api.qualities.fetchAll().then((data) => setQualities(data));
     }, []); */
-    useEffect(() => {
+
+    // Код ниже заменяется кастомными хуками, и качества с профессиями теперь берутся с ФБ
+    /* useEffect(() => {
         api.professions.fetchAll().then((data) => {
             const professionsList = Object.keys(data).map((professionName) => ({
                 label: data[professionName].name,
@@ -39,7 +72,7 @@ const RegisterForm = () => {
             }));
             setQualities(qualitiesList);
         });
-    }, []);
+    }, []); */
 
     // Скрыто для валидации только по сабмиту
     /*  useEffect(() => {
@@ -104,14 +137,17 @@ const RegisterForm = () => {
         console.log("отправлено");
     }; */
 
-    const getProfessionById = (id) => {
+    // Закомментил, так как в уроках по ФБ это не надо в консоль ниже
+    /*  const getProfessionById = (id) => {
         for (const prof of professions) {
             if (prof.value === id) {
                 return { _id: prof.value, name: prof.label };
             }
         }
-    };
-    const getQualities = (elements) => {
+    }; */
+
+    // Закомментил, так как в уроках по ФБ это не надо в консоль ниже
+    /* const getQualities = (elements) => {
         const qualitiesArray = [];
         for (const elem of elements) {
             for (const quality in qualities) {
@@ -125,23 +161,30 @@ const RegisterForm = () => {
             }
         }
         return qualitiesArray;
-    };
+    }; */
 
-    const handleSubmit = (e) => {
+    // Передал ньюдату с урока по методу Сайнап
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
-        const { profession, qualities } = data;
-        console.log(
-            {
-                ...data,
-                profession: getProfessionById(profession),
-                qualities: getQualities(qualities)
-            },
-            "форма отправлена"
-        );
+        /* const { profession, qualities } = data; */
+        const newData = {
+            ...data,
+            qualities: data.qualities.map((q) => q.value)
+        };
+
+        try {
+            await signUp(newData);
+            console.log(newData, "форма отправлена");
+            history.push("/");
+        } catch (error) {
+            setErrors(error);
+            console.log(error, "облом новый");
+        }
     };
 
+    // Квалитис были поправлены выше в квалитисЛист, для правильного формата
     return (
         <form onSubmit={handleSubmit}>
             <TextField
@@ -163,7 +206,7 @@ const RegisterForm = () => {
             ></TextField>
             <SelectField
                 onChange={handleChange}
-                options={professions}
+                options={professionsList}
                 defaultOption="Выберите..."
                 label="Choosee your profession"
                 error={errorsObj.profession}
@@ -183,7 +226,7 @@ const RegisterForm = () => {
                 label="Select your sex"
             />
             <MultiSelectField
-                options={qualities} // изменил с ...Лист
+                options={qualitiesList} // изменил с ...Лист (а потом обратно, на уроках по ФБ)
                 onChange={handleChange}
                 name="qualities"
                 label="Select your qualities"

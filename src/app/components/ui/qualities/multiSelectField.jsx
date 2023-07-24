@@ -24,6 +24,7 @@ const MultiSelectField = ({ options, onChange, name, label, defaultValue }) => {
     const handleChange = (value) => {
         onChange({ name, value });
     };
+
     //
     return (
         <div className="mb-4">

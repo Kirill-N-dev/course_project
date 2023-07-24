@@ -40,6 +40,7 @@ export const ProfessionProvider = ({ children }) => {
             const { content } = await professionService.get();
             setProfessions(content);
             setLoading(false);
+            /* console.log(process.env, "среда"); */
         } catch (error) {
             errorCatcher(error);
         }

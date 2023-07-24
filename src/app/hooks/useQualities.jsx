@@ -50,7 +50,7 @@ export const QualitiesProvider = ({ children }) => {
             setQualities(content);
             setLoading(false);
 
-            console.log(content, 888);
+            /* console.log(content, 888); */
             //
         } catch (error) {
             errorCatcher(error);

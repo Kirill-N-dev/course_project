@@ -22,7 +22,12 @@ const SelectField = ({
             ? Object.values(options)
             : options;
 
-              // Автор ниже зачем-то пишет не  {option.name} а  {option.label}
+    // Автор ниже зачем-то пишет не  {option.name} а  {option.label}
+    // !!! НИЖЕ ВВЁЛ КОРРЕКТИРОВКУ, ДОБАВИВ ID И ИНДЕКСЫ В МАППИНГЕ ДЛЯ КЛЮЧЕЙ ВМЕСТО option.value !!!
+
+    // Проверка, что такое опшн (ибо он меняется от урока к уроку, а автор не объясняет)
+    /* optionsArray.map((option) => console.log(option, 999)); */
+
     return (
         <div className="mb-4">
             <label htmlFor={name} className="form-label">
@@ -39,8 +44,8 @@ const SelectField = ({
                     {defaultOption}
                 </option>
                 {optionsArray.length > 0 &&
-                    optionsArray.map((option) => (
-                        <option value={option.value} key={option.value}>
+                    optionsArray.map((option, ind) => (
+                        <option value={option.value} key={option.label}>
                             {option.label}
                         </option>
                     ))}
