@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 const CommentsList = ({ sortedComments, onDelete }) => {
     // коммент запропсил по своему
+    /*  console.log(sortedComments, 666); */
     return sortedComments.map((comment) => (
         <Comment key={comment._id} {...comment} onDelete={onDelete} />
     ));

@@ -30,6 +30,8 @@ const UserProvider = ({ children }) => {
     async function getUsers() {
         try {
             const { content } = await userService.get();
+            // Качества должны быть ["","",...], и именно такого формата, иначе ФЭ будет выдавать ошибки
+            /* console.log(content, 222); */
             setUsers(content);
             setLoading(false);
         } catch (error) {
@@ -43,9 +45,14 @@ const UserProvider = ({ children }) => {
         setLoading(false);
     }
 
+    // При багах попробовать сделать асинхронной
+    function getUserById(userId) {
+        return users.find((u) => u._id === userId);
+    }
+
     // ПОЧЕМУ-ТО НИЧЕГО НЕ ОБЁРНУТО В ЭТОТ ПРОВАЙДЕР - ВОПРОС ПОЧЕМУ? КОД АВТОРА - тру делет
     return (
-        <UserContext.Provider value={{ users }}>
+        <UserContext.Provider value={{ users, getUserById }}>
             {!loading ? children : "loading..."}
         </UserContext.Provider>
     );

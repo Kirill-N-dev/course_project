@@ -12,7 +12,7 @@ const Quality = ({ id }) => {
     return <span className={"badge m-1 bg-" + qual.color}>{qual.name}</span>;
 };
 Quality.propTypes = {
-    color: PropTypes.string.isRequired,
+    color: PropTypes.string,
     /*  name: PropTypes.string.isRequired, */
     id: PropTypes.string
 };

@@ -12,7 +12,7 @@ export const dater = (date) => {
     const theHour = new Date(date).getHours();
     const theMonth = new Date(date).getMonth();
     const theYear = new Date(date).getFullYear();
-    const theDay = new Date(date).getDay();
+    const theDay = new Date(date).getDate();
 
     // Это возвращаемое данной функции
     let formattedDate;
@@ -57,7 +57,10 @@ export const dater = (date) => {
     }
 
     //
-    if (currDateForCodeBelow.getFullYear() > theYear) {
+    if (
+        currDateForCodeBelow.getFullYear() >= theYear &&
+        currDateForCodeBelow.getMonth() !== theMonth
+    ) {
         formattedDate = `${
             (theDay < 10 ? "0" + theDay : theDay) +
             "." +

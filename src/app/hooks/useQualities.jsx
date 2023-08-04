@@ -39,6 +39,7 @@ export const QualitiesProvider = ({ children }) => {
 
     //
     function getTheQualities(id) {
+        /* console.log(qualities, id, 444); */
         return qualities.find((p) => p._id === id);
     }
 
@@ -48,6 +49,7 @@ export const QualitiesProvider = ({ children }) => {
         try {
             const { content } = await qualitiesService.get();
             setQualities(content);
+            /* console.log(content, 777); */
             setLoading(false);
 
             /* console.log(content, 888); */

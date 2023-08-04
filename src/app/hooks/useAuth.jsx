@@ -3,27 +3,69 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import userService from "../services/userService";
 import { toast } from "react-toastify";
-import { setTokens } from "../services/localStorageService";
+import {
+    localStorageService,
+    setTokens
+} from "../services/localStorageService";
+import { randomInt } from "../utils/randomInt";
+import { useHistory } from "react-router";
+/* import httpService from "../services/httpService"; */
+/* import configFile from "../config.json"; */
 
 const AuthContext = React.createContext();
 
-const httpAuth = axios.create();
+// Код ниже нативный, но автор в уроке по ФБ (6) уже имеет нижезаписанный код, почти копипасту с httpService.js
+// Объяснений, как обычно, не было. Потому делаю копипасту, хоят работало и так.
+/* const httpAuth = axios.create(); */
+// Изменённый невесть когда автором код + я сам добавил в config.json нужный эндпойнт:
+export const httpAuth = axios.create({
+    baseURL: "https://securetoken.googleapis.com/v1/",
+    params: { key: process.env.REACT_APP_FIREBASE_KEY }
+});
 
 export const useAuth = () => {
     return useContext(AuthContext);
 };
 
 const AuthProvider = ({ children }) => {
-    //
-    const [currentUser, setCurrentUser] = useState({});
+    // Ниже удалил первичное значение, так как с ним происходил баг и юзеры не были фалс в навбаре
+    const [currentUser, setCurrentUser] = useState();
     const [error, setError] = useState(null);
+    const [isLoading, setLoading] = useState(true);
+
+    const history = useHistory();
     //
+
+    const getUserData = async () => {
+        try {
+            const { content } = await userService.getCurrentUser();
+            setCurrentUser(content);
+        } catch (error) {
+            errorCatcher(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (localStorageService.getAccessToken()) {
+            getUserData();
+        } else {
+            setLoading(false);
+        }
+    }, []);
     // Копипаста с другого хука
     useEffect(() => {
         if (error !== null) {
             toast.error(error);
         }
     }, [error]);
+    //
+    const logOut = () => {
+        localStorageService.removeAuthData();
+        setCurrentUser(null);
+        history.push("/");
+    };
 
     //
     const signUp = async ({ email, password, ...rest }) => {
@@ -42,7 +84,18 @@ const AuthProvider = ({ children }) => {
             /* console.log(data, 776); */
             // Новое для токенов
             setTokens(data);
-            await createUser({ _id: data.localId, email, ...rest });
+            await createUser({
+                _id: data.localId,
+                email,
+                rate: randomInt(1, 5),
+                completedMeetings: randomInt(0, 200),
+                image: `https://avatars.dicebear.com/api/avataaars/${(
+                    Math.random() + 1
+                )
+                    .toString(36)
+                    .substring(7)}.svg`,
+                ...rest
+            });
         } catch (error) {
             //
 
@@ -83,6 +136,8 @@ const AuthProvider = ({ children }) => {
             // МАКС, Я НЕ УВЕРЕН, ЧТО НУЖНЫ В ХРАНИЛИЩЕ ИМЕННО ЭТИ ТОКЕНЫ, Я ТОЛКОМ ЕЩЁ НЕ РАЗОБРАЛСЯ,
             // ЗАЧЕМ ОНИ ТАМ (ПРИ РЕГИСТРАЦИИ ЯСНО, А ПРИ ЗАЛОГИНЕ - НЕТ), А АВТОР В ЗАДАНИИ НЕ УТОЧНИЛ
             setTokens(data);
+            // Забытый await, иначе нет переадресации из-за первичного отсутствия currentUser
+            await getUserData();
         } catch (error) {
             //
             /* console.log(error, "домашка облом!"); */
@@ -120,7 +175,7 @@ const AuthProvider = ({ children }) => {
 
     // Копипаста с другого хука
     function errorCatcher(error) {
-        console.log(error, 4321);
+        /* console.log(error, 4321); */
         const { message } = error.response.data.error;
         setError(message);
     }
@@ -128,17 +183,56 @@ const AuthProvider = ({ children }) => {
     // Создание функции для конца регистрации юзера + выше создаётся стейт currentUser
     const createUser = async (data) => {
         try {
-            const { content } = userService.create(data);
+            const { content } = await userService.create(data);
             setCurrentUser(content);
+            /* console.log(content, 123); */
         } catch (error) {
             // код видео 9:39 - начинает переносить сюда эроркетчер с другого файла
             errorCatcher(error);
         }
     };
 
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // ДОМАШКА
+    const updateUser = async (data) => {
+        // data не совсем правильная, там qualities это не простой [], а [{},{}...]
+        // потому при обновлении юзера (в БД) возникал баг, когда повторно запрашивались его качества
+        // подобный баг и с профессиями
+        // Форматирую карентЮзера для отправки на ФБ:
+        const newData = {
+            ...data,
+            qualities: data.qualities.map((q) => q.value),
+            profession: data.profession
+        };
+        /* console.log(data.profession, 444); */ // нужна именно data.profession, это айдишник
+        console.log(data, newData); // +++
+        try {
+            const { content } = await userService.update(newData);
+            setCurrentUser(content);
+            /* console.log(content, 123); */
+        } catch (error) {
+            /* console.log(error); */
+            errorCatcher(error);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ signUp, logIn, currentUser }}>
-            {children}
+        <AuthContext.Provider
+            value={{ signUp, logIn, logOut, currentUser, updateUser }}
+        >
+            {!isLoading ? children : "loading!!!&&&"}
         </AuthContext.Provider>
     );
 };

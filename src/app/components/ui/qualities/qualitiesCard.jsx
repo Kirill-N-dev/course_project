@@ -9,7 +9,7 @@ const QualitiesCard = ({ qualities }) => {
     const { loading } = useQual();
 
     //
-    console.log(qualities, 555); // качества есть - ЭТО [АЙДИШНИКИ]
+    /* console.log(qualities, 555); */ // качества есть - ЭТО [АЙДИШНИКИ]
 
     return (
         <>

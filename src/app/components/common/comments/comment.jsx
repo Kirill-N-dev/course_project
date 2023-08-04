@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { dater } from "../../../utils/dater";
-import api from "../../../api";
+import { useUser } from "../../../hooks/useUsers";
+import { useAuth } from "../../../hooks/useAuth";
+/* import api from "../../../api"; */
 /* import _ from "lodash"; */
 
 const Comment = ({
@@ -11,33 +13,28 @@ const Comment = ({
     userId,
     onDelete
 }) => {
-    //
     // Получение юзера
-    const [user, setUser] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const { getUserById } = useUser();
+    const { currentUser } = useAuth();
+    const user = getUserById(userId);
+    /* const [loading, setLoading] = useState(false); */
 
-    useEffect(() => {
+    /* useEffect(() => {
         setLoading(true);
         api.users.getById(userId).then((user) => {
             setUser(user);
             setLoading(false);
         });
-    }, []);
+    }, []); */
 
     return (
         <div className="bg-light card-body  mb-3">
             <div className="row">
-                {loading ? (
-                    "Loading..."
-                ) : (
+                {
                     <div className="col">
                         <div className="d-flex flex-start ">
                             <img
-                                src={`https://avatars.dicebear.com/api/avataaars/${(
-                                    Math.random() + 1
-                                )
-                                    .toString(36)
-                                    .substring(7)}.svg`}
+                                src={user.image}
                                 className="rounded-circle shadow-1-strong me-3"
                                 alt="avatar"
                                 width="65"
@@ -49,22 +46,25 @@ const Comment = ({
                                         <p className="mb-1 ">
                                             {user && user.name}
                                             <span className="small">
-                                                {" "} - {dater(+created)}
+                                                {" "}
+                                                - {dater(created)}
                                             </span>
                                         </p>
-                                        <button
-                                            className="btn btn-sm text-primary d-flex align-items-center"
-                                            onClick={() => onDelete(id)}
-                                        >
-                                            <i className="bi bi-x-lg"></i>
-                                        </button>
+                                        {currentUser._id === userId && (
+                                            <button
+                                                className="btn btn-sm text-primary d-flex align-items-center"
+                                                onClick={() => onDelete(id)}
+                                            >
+                                                <i className="bi bi-x-lg"></i>
+                                            </button>
+                                        )}
                                     </div>
                                     <p className="small mb-0"> {content}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                )}
+                }
             </div>
         </div>
     );

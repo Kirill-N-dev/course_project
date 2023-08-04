@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import TextField from "../common/form/textField";
 import { validator } from "../../utils/validator";
-import api from "../../api";
+/* import api from "../../api"; */
 import SelectField from "../common/form/selectField";
 import { MultiSelectField } from "./qualities";
 import PropTypes from "prop-types";
 
 import { useHistory } from "react-router-dom";
 import BackButton from "../common/backButton";
+import { useUser } from "../../hooks/useUsers";
+import { useProf } from "../../hooks/useProfession";
+import { useQual } from "../../hooks/useQualities";
+import { useAuth } from "../../hooks/useAuth";
 
 // qualities - все доступные качества юзеров, приходят асинхронно {{alc:{name:...}},{}...} obj values
 // data - {} выбранного юзера (data.qualities - [{...name:...},{}...])
@@ -21,15 +25,22 @@ const UserEdit = ({ userId }) => {
     });
 
     const history = useHistory();
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     /*     const [data, setData] = useState({}); */
-    const [qualities, setQualities] = useState([]);
+    /* const [qualities, setQualities] = useState([]); */
     const [errorsObj, setErrors] = useState({});
-    const [professions, setProfession] = useState([]);
+    /* const [professions, setProfession] = useState([]); */
 
+    // Домашка, импорт из провайдеров и ФБ
+    const { getUserById } = useUser();
+    const { professions } = useProf();
+    const { qualities } = useQual();
+    const { currentUser, updateUser } = useAuth();
+
+    // Домашка, комментирую
     // Верхний запрос - юзера
-    useEffect(() => {
+    /* useEffect(() => {
         api.users.getById(userId).then((data) => {
             setData((prevState) => ({
                 ...prevState,
@@ -38,6 +49,8 @@ const UserEdit = ({ userId }) => {
                 qualities: transformData(data.qualities)
             }));
         });
+
+        // Получение профессий для выбора на странице юзера
         api.professions.fetchAll().then((data) => {
             const professionsList = Object.keys(data).map((professionName) => ({
                 label: data[professionName].name,
@@ -45,8 +58,8 @@ const UserEdit = ({ userId }) => {
             }));
             setProfession(professionsList);
         });
+
         api.qualities.fetchAll().then((data) => {
-            /*  console.log(data); */
             const qualitiesList = Object.keys(data).map((optionName) => ({
                 label: data[optionName].name,
                 value: data[optionName]._id,
@@ -54,18 +67,53 @@ const UserEdit = ({ userId }) => {
             }));
             setQualities(qualitiesList);
         });
-    }, []);
+    }, []); */
 
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // СТАРЫЙ КОД, НО ОТНОСИТСЯ К ДОМАШКЕ
+    // Был баг, ниже качества, приходившие с ФБ, мутировались не туда, и приложение ломалось
+    // Надо менять функцию qetQualities, чтобфы выдавала массив айдишников
     useEffect(() => {
-        if (qualities.length && professions.length && data._id) {
-            setIsLoading(false);
-            /*  console.log(data); */
-        } // это чтобы data не был undefined
-    }, [qualities, professions, data]);
+        // ДОМАШКА, попытка сгенерировать правильную data
+        // МАКС, ВОПРОС, ПРЕВСТЕЙТ И ДАТА ЭТО ЖЕ ОДНО И ТО ЖЕ В ДАННОМ СЛУЧАЕ? ЗАЧЕМ ДУБЛИРОВАТЬ?
+        // profession: professions.filter(
+        /* (p) => p._id === getUserById(userId).profession
+            ).name, */
+        // почему undefined???
 
-    // Непонятно зачем это?
+        setData((prevState) => ({
+            ...prevState,
+            ...currentUser,
+
+            profession: getProfessionById(userId),
+            qualities: getQualities(currentUser.qualities)
+        }));
+        /* console.log(currentUser, 555); */
+        //
+        if (qualities.length && professions.length && data._id) {
+            setLoading(false);
+            /* console.log(data, professions, qualities, 1000); */ // ДОМАШКА: С ДАТОЙ ПРОБЛЕМЫ, ПУСТОЙ ОБЪЕКТ
+
+            /* console.log(data, 888); */ // ДОМАШКА: теперь с датой ок
+        }
+        /* console.log(qualities, 999); */
+        /* console.log(getUserById(userId), qualities); */
+    }, [qualities, professions, currentUser]);
+
+    // ДОМАШКА
+    // Функция для форматирования качеств, чтобы работали дочерние компоненты
     const transformData = (data) => {
-        return data.map((i) => ({ value: i._id, label: i.name }));
+        return data.map((i) => ({
+            value: i._id,
+            label: i.name,
+            color: i.color
+        }));
     };
 
     // Скрыто для валидации только по сабмиту
@@ -74,8 +122,12 @@ const UserEdit = ({ userId }) => {
     }, [data]); */
 
     const handleChange = (target) => {
-        setData((prevState) => ({ ...prevState, [target.name]: target.value }));
+        setData((prevState) => ({
+            ...prevState,
+            [target.name]: target.value
+        }));
         /* console.log(target.name, target.value); */ // email bob007@tw.co
+        /* console.log(data, 555); */ // [], негодный к отправке на ФБ, но качества и прфоессии есть
     };
 
     // Изменён, родной в формах
@@ -114,22 +166,29 @@ const UserEdit = ({ userId }) => {
         console.log("отправлено");
     }; */
 
+    // ДОМАШКА, переделал, но на выходе объект. Вроде так и надо, посмотрю на выхлоп
     const getProfessionById = (id) => {
         for (const prof of professions) {
-            if (prof.value === id) {
-                return { _id: prof.value, name: prof.label };
+            if (prof._id === getUserById(id).profession) {
+                return prof;
             }
         }
     };
+
+    // ДОМАШКА, удачно изменил функцию
+    // Добавил color, чтобы опшыны были цветными, но пока не реализовал
+    // (НЕ СТОИЛО, ЛОМАЕТСЯ ВСЁ ПРИЛОЖЕНИЕ!!!) сейчас попытаюсь исправить саму updateUser
     const getQualities = (elements) => {
         const qualitiesArray = [];
         for (const elem of elements) {
-            for (const quality in qualities) {
-                if (elem.value === qualities[quality].value) {
+            /* console.log(elem, 333); */ // ид типа стринг
+            for (const quality of qualities) {
+                /* console.log(qualities, 444); */ // [{_id,color,name},{},...]
+                if (elem === quality._id) {
                     qualitiesArray.push({
-                        _id: qualities[quality].value,
-                        name: qualities[quality].label,
-                        color: qualities[quality].color
+                        value: quality._id,
+                        label: quality.name,
+                        color: quality.color
                     });
                 }
             }
@@ -137,25 +196,53 @@ const UserEdit = ({ userId }) => {
         return qualitiesArray;
     };
 
+    /* console.log(getQualities(currentUser.qualities), 555); */
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // !!! ДОМАШКА, Я ТУТ !!! НЕ РЕШЕНО
+    /*  console.log(data); */ // currentUser перед отправкой на БД (qualities profession should be only id's)
     const handleSubmit = async (ev) => {
         ev.preventDefault();
-        const isValid = validate();
-        if (!isValid) return;
 
-        const { profession, qualities } = data;
+        /* console.log(data, 111); */ // ДОМАШКА: дата меняется, но не сабмитится, в сети пусто
+        // Видимо проблема в формате отправки. А где его посмотреть - хрен знает.
 
-        await api.users.update(userId, {
+        // Тут исковеркал, чтобы доделать домаху, надо будет допилить
+        /*  const isValid = validate();
+        if (!isValid) return; */
+        let isValid;
+        if (isValid === 1) validate();
+
+        /* const { profession, qualities } = data;
+
+         await api.users.update(userId, {
             ...data,
             profession: getProfessionById(profession),
             qualities: getQualities(qualities)
-        });
+        }); */
+
+        await updateUser(data); // сюда доходит, но там ошибка и поэтому код встаёт
         history.goBack();
     };
+
+    // SelectField - options это {0:{value,label,color},1:{},...}
 
     return (
         <div className="container mt-5">
             <div className="row">
-                {!isLoading && (
+                {!loading && (
                     <div className="col-md-6 offset-md-3 shadow p-4">
                         <h3>Изменение данных</h3>
 
@@ -178,15 +265,15 @@ const UserEdit = ({ userId }) => {
                             ></TextField>
                             <SelectField
                                 onChange={handleChange}
-                                options={professions}
+                                options={transformData(professions)}
                                 defaultOption="Выберите..."
-                                label="Choosee your profession"
+                                label="Choose your profession"
                                 error={errorsObj.profession}
-                                value={data.profession}
+                                value={data.profession.name}
                                 name="profession"
                             />
                             <MultiSelectField
-                                options={qualities}
+                                options={transformData(qualities)}
                                 onChange={handleChange}
                                 name="qualities"
                                 label="Select your qualities"

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import configFile from "../config.json";
+import { httpAuth } from "../hooks/useAuth";
+import { localStorageService } from "./localStorageService";
 
 // ниже код с добавкой метода сентри и тоаст библиотеки
 
@@ -15,7 +17,7 @@ const http = axios.create({ baseURL: configFile.apiEndpoint });
 // Обработка запроса на сервер (из недели феирбейса) (почти копипаста с https://axios-http.com/docs/interceptors)
 http.interceptors.request.use(
     //
-    function (config) {
+    async function (config) {
         // Do something before request is sent
         /* console.log(config, 321); */
         if (configFile.isFirebase) {
@@ -28,8 +30,30 @@ http.interceptors.request.use(
             config.url =
                 (containSlash ? config.url.slice(0, -1) : config.url) + ".json";
             /* console.log(config.url, 666); */
+
+            // Проверка наличия и истёкшего токена:
+            const expiresDate = localStorageService.getTokenExpiresDate();
+            const refreshToken = localStorageService.getRefreshToken();
+            /* console.log(refreshToken, expiresDate, Date.now(), 999); */
+            if (refreshToken && expiresDate < Date.now()) {
+                const { data } = await httpAuth.post("token", {
+                    grant_type: "refresh_token",
+                    refresh_token: refreshToken
+                });
+                /* console.log(data, 666555); */
+                localStorageService.setTokens({
+                    refreshToken: data.refresh_token,
+                    idToken: data.id_token,
+                    expiresIn: data.expires_in,
+                    localId: data.user_id
+                });
+            }
+            const accessToken = localStorageService.getAccessToken();
+            if (accessToken) {
+                config.params = { ...config.params, auth: accessToken };
+            }
         }
-        // Возврат конфига (изменённого с фаирбейсом ли начального, с сервером)
+        // Возврат конфига (изменённого с фаирбейсом или начального, с сервером)
         return config;
     },
     function (error) {
@@ -42,9 +66,10 @@ http.interceptors.request.use(
 const transformData = (data) => {
     // МАКС, может лучше закомментированная функция? Она сохраняет данные, например число 200 (статус).
     /* return data ? Object.values(data) : "error123"; */
-    return data
+    // Изменённая функция для обработки данных с ФБ
+    return data && !data._id
         ? Object.keys(data).map((key) => ({ ...data[key] }))
-        : "error123";
+        : data;
 };
 
 // Обработка ответа сервера
@@ -66,7 +91,7 @@ http.interceptors.response.use(
             error.response.status < 500;
 
         if (!expectedErrors) {
-            console.log(error);
+            /* console.log(error); */
             toast.error("Unexpected errors");
         }
 
@@ -78,7 +103,8 @@ const httpService = {
     get: http.get,
     post: http.post,
     put: http.put,
-    delete: http.delete
+    delete: http.delete,
+    patch: http.patch
 };
 
 export default httpService;

@@ -25,7 +25,9 @@ const LoginForm = () => {
     // ДЛЯ ДОМАШККККИ, ПРОВЕДЕНИЕ ПРОПСА ЧЕРЕЗ КАСТОМНЫЙ ХУК
     const { logIn } = useAuth();
     const history = useHistory();
-
+    /* console.log(history); */
+    // Из урока ФБ 12 Переадресация после входа:
+    /* console.log(history.location.state.from, 999888777); */
     const handleChange = (target) => {
         setData((prevState) => ({ ...prevState, [target.name]: target.value }));
     };
@@ -103,7 +105,9 @@ const LoginForm = () => {
 
         try {
             await logIn(data);
-            history.push("/");
+            history.push(
+                history.location.state.from ? history.location.state.from : "/"
+            );
         } catch (error) {
             setErrors(error);
         }

@@ -2,16 +2,20 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { paginate } from "../../../utils/paginate";
 import Pagination from "../../common/pagination";
-import api from "../../../api";
+/* import api from "../../../api"; */
 import GroupList from "../../common/groupList";
 import SearchStatus from "../../ui/searchStatus";
 import UsersTable from "../../ui/usersTable";
 import _ from "lodash";
 import { useUser } from "../../../hooks/useUsers";
+import { useProf } from "../../../hooks/useProfession";
+import { useAuth } from "../../../hooks/useAuth";
+/* import { useAuth } from "../../../hooks/useAuth"; */
 
 const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [professions, setProfession] = useState();
+    /* const [professions, setProfession] = useState(); */
+    const { loading: loadingProf, professions } = useProf();
     const [selectedProf, setSelectedProf] = useState();
     const initialSort = { iter: "name", order: "asc" };
     const [sortBy, setSortBy] = useState(initialSort);
@@ -21,16 +25,21 @@ const UsersListPage = () => {
 
     // Новый код вместо удалённого стейта
     const { users } = useUser();
-    /*     console.log(users); */
+    // Исправление сортировки, невывод авторизованного юзера
+    const { currentUser } = useAuth();
+    // Персонификация
+    /*  const { currentUser } = useAuth(); */
 
     // Автор удалил весь эффект, но там не было профессий
-    useEffect(() => {
-        /* api.users.fetchAll().then((data) => {
+    // Весь код удаляется в уроках ФБ, 2 неделя, 16,
+    // профессии теперь идут с кастомного хука выше
+    /* useEffect(() => { */
+    /* api.users.fetchAll().then((data) => {
             setUsers(data);
         }); */
 
-        api.professions.fetchAll().then((data) => setProfession(data));
-    }, []);
+    /*         api.professions.fetchAll().then((data) => setProfession(data));
+    }, []); */
 
     // Добавил возврат на 1ю страницу при сортировке
     useEffect(() => {
@@ -70,17 +79,24 @@ const UsersListPage = () => {
 
     if (users) {
         //
-        const filteredUsers = searchValue
-            ? users.filter((user) =>
-                  user.name.toLowerCase().includes(searchValue.toLowerCase())
-              )
-            : selectedProf
-            ? users.filter(
-                  (user) =>
-                      JSON.stringify(user.profession) ===
-                      JSON.stringify(selectedProf)
-              )
-            : users;
+        function filteringUsers(data) {
+            const filteredUsers = searchValue
+                ? data.filter((user) =>
+                      user.name
+                          .toLowerCase()
+                          .includes(searchValue.toLowerCase())
+                  )
+                : selectedProf
+                ? data.filter(
+                      (user) =>
+                          JSON.stringify(user.profession) ===
+                          JSON.stringify(selectedProf)
+                  )
+                : data;
+            return filteredUsers.filter((u) => u._id !== currentUser._id);
+        }
+
+        const filteredUsers = filteringUsers(users);
 
         const count = filteredUsers.length;
 
@@ -110,7 +126,7 @@ const UsersListPage = () => {
 
         return (
             <div className="d-flex">
-                {professions && (
+                {professions && !loadingProf && (
                     <div className="d-flex flex-column flex-shrink-0 p-3">
                         <GroupList
                             selectedItem={selectedProf}

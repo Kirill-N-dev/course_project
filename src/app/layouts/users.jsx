@@ -1,27 +1,47 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import UsersListPage from "../components/page/usersListPage";
 import UserPage from "../components/page/userPage";
 import { EditUserPage } from "../components/ui";
 import UserProvider from "../hooks/useUsers";
+import { ProfessionProvider } from "../hooks/useProfession";
+import { QualitiesProvider } from "../hooks/useQualities";
+import AuthProvider, { useAuth } from "../hooks/useAuth";
+import { useHistory, useParams } from "react-router";
 
 const Users = () => {
+    // Домашка, реализация редиректа на страницу изменения данных карент юзера (протектед роут)
+    // типа протектед роута, суть та же
     const params = useParams();
     const { userId, edit } = params;
-    /* console.log(userId, 222); */
+
+    const { currentUser } = useAuth();
+    const history = useHistory();
+
     return (
         <>
-            <UserProvider>
-                {userId ? (
-                    edit ? (
-                        <EditUserPage userId={userId} />
-                    ) : (
-                        <UserPage userId={userId} />
-                    )
-                ) : (
-                    <UsersListPage />
-                )}
-            </UserProvider>
+            <AuthProvider>
+                <UserProvider>
+                    <ProfessionProvider>
+                        <QualitiesProvider>
+                            {userId ? (
+                                edit ? (
+                                    currentUser._id === userId ? (
+                                        <EditUserPage userId={userId} />
+                                    ) : (
+                                        history.replace(
+                                            `/users/${currentUser._id}/edit`
+                                        )
+                                    )
+                                ) : (
+                                    <UserPage userId={userId} />
+                                )
+                            ) : (
+                                <UsersListPage />
+                            )}
+                        </QualitiesProvider>
+                    </ProfessionProvider>
+                </UserProvider>
+            </AuthProvider>
         </>
     );
 };

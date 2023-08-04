@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import api from "../../api";
+import React from "react";
+/* import api from "../../api"; */
 /* import { idGen } from "../../../utils/idGen"; */
-import { useParams } from "react-router";
+/* import { useParams } from "react-router"; */
 import { orderBy } from "lodash";
 import CommentsList from "../common/comments/commentsList";
 import AddCommentForm from "../common/comments/addCommentForm";
+import { useComments } from "../../hooks/useComments";
 
 const Comments = () => {
     /*
@@ -21,28 +22,38 @@ const Comments = () => {
     */
 
     // id берётся из текущего адреса (путя)
-    const { userId } = useParams();
+    /* const { userId } = useParams(); */
 
     // Получение комментов текущего юзера ([{},{}...])
-    const [comments, setComments] = useState([]);
+    /* const [comments, setComments] = useState([]); */
 
-    useEffect(() => {
+    const { createComment, comments, deleteComment, getComments } =
+        useComments();
+
+    /*     useEffect(() => {
         api.comments
             .fetchCommentsForUser(userId)
             .then((comment) => setComments(comment));
-    }, []);
+    }, []); */
 
     // У автора передана только дата
     const handleSubmit = (data) => {
-               api.comments
+        /* api.comments
             .add({ ...data, pageId: userId })
-            .then((data) => setComments([...comments, data]));
+            .then((data) => setComments([...comments, data])); */
+        /* console.log(data, 999); */
+        createComment(data);
+        /* getComments(); */ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (data === 5) getComments();
     };
 
     const handleDelete = (id) => {
-        api.comments
+        /* api.comments
             .remove(id)
-            .then((id) => setComments(comments.filter((x) => x._id !== id)));
+            .then((id) => setComments(comments.filter((x) => x._id !== id))); */
+        /* console.log(id); */
+        // выводится id коммента
+        deleteComment(id);
     };
 
     const sortedComments = orderBy(comments, ["created_at"], ["desc"]);
