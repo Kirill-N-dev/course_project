@@ -8,16 +8,19 @@ import PropTypes from "prop-types";
 
 import { useHistory } from "react-router-dom";
 import BackButton from "../common/backButton";
-import { useUser } from "../../hooks/useUsers";
-import { useProf } from "../../hooks/useProfession";
-import { useQual } from "../../hooks/useQualities";
+/* import { useUser } from "../../hooks/useUsers"; */
+/* import { useProf } from "../../hooks/useProfession"; */
+/* import { useQual } from "../../hooks/useQualities"; */
 import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { getQualities, getQualitiesLoadingStatus } from "../../store/qualities";
+import { getProfessions } from "../../store/professions";
 
 // qualities - все доступные качества юзеров, приходят асинхронно {{alc:{name:...}},{}...} obj values
 // data - {} выбранного юзера (data.qualities - [{...name:...},{}...])
 
 const UserEdit = ({ userId }) => {
-    //
+    // СТЕЙТ КАРРЕНТ ЮЗЕРА ДЛЯ ЕГО ТРАНСФОРМАЦИИ ПОСЛЕ ПОЛУЧЕНИЯ С ФБ ДЛЯ ОТОБРАЖЕНИЯ КОНТЕНТА
     const [data, setData] = useState({
         email: "",
         profession: "",
@@ -33,9 +36,23 @@ const UserEdit = ({ userId }) => {
     /* const [professions, setProfession] = useState([]); */
 
     // Домашка, импорт из провайдеров и ФБ
-    const { getUserById } = useUser();
-    const { professions } = useProf();
-    const { qualities } = useQual();
+    /* const { getUserById } = useUser(); */
+
+    // Домашка, закомментил импорт из провайдера и перешёл на редакс
+    // По идее лоадер профессий тут не нужен, так как при авторизации они уже есть
+    /* const { professions } = useProf(); */
+    const professions = useSelector(getProfessions());
+
+    // Домашка, допил качеств: они изначально приходят в правильном формате:  [{_id, name, color},{},...}]
+
+    // Закомментил в уроках по редаксу, качества теперь получаю запросом к стору, а это делается через хук
+    /* const { qualities } = useQual(); */
+    const qualities = useSelector(getQualities());
+    /* console.log(qualities, 111); */
+
+    // Лоадер из стора
+    const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
+    /* console.log(qualitiesLoading); */
     const { currentUser, updateUser } = useAuth();
 
     // Домашка, комментирую
@@ -79,6 +96,11 @@ const UserEdit = ({ userId }) => {
     // СТАРЫЙ КОД, НО ОТНОСИТСЯ К ДОМАШКЕ
     // Был баг, ниже качества, приходившие с ФБ, мутировались не туда, и приложение ломалось
     // Надо менять функцию qetQualities, чтобфы выдавала массив айдишников
+
+    // У автора в домашке код ниже немного отличается, в частности он импортировал все лоадинги и ставил их в зависимости ниже + data
+    // Таки я переписал у автора, а точнее у Макса, потому что так более рационально, иначе было неправильно - не та зависимость от
+    // каррентЮзера, или же, иначе, бесконечный ререндер, хоть и всё работало
+
     useEffect(() => {
         // ДОМАШКА, попытка сгенерировать правильную data
         // МАКС, ВОПРОС, ПРЕВСТЕЙТ И ДАТА ЭТО ЖЕ ОДНО И ТО ЖЕ В ДАННОМ СЛУЧАЕ? ЗАЧЕМ ДУБЛИРОВАТЬ?
@@ -89,26 +111,40 @@ const UserEdit = ({ userId }) => {
 
         setData((prevState) => ({
             ...prevState,
-            ...currentUser,
+            ...currentUser
 
-            profession: getProfessionById(userId),
-            qualities: getQualities(currentUser.qualities)
+            // profession: getProfessionById(userId)
+            /* qualities: getQualities(currentUser.qualities) */ // ВРОДЕ ВСЁ ОК, НО ДАТА-КВАЛИТИС КУДА-ТО ПРОПАДАЮТ
         }));
-        /* console.log(currentUser, 555); */
-        //
-        if (qualities.length && professions.length && data._id) {
-            setLoading(false);
-            /* console.log(data, professions, qualities, 1000); */ // ДОМАШКА: С ДАТОЙ ПРОБЛЕМЫ, ПУСТОЙ ОБЪЕКТ
+        /* console.log(currentUser.qualities); */ // доступны сразу, качества currentUser это ["id","id",...]
+        // Тут все качества немного меняют структуру, теперь [{value,label,color},{},...]
+        /* setTimeout(() => console.log(transformData(qualities), 333), 1000); */
 
-            /* console.log(data, 888); */ // ДОМАШКА: теперь с датой ок
-        }
-        /* console.log(qualities, 999); */
+        /* console.log(qualities, 999); */ // ОШИБКА ТУТ, КАЧЕСТВА АСИНХРОННЫ
         /* console.log(getUserById(userId), qualities); */
-    }, [qualities, professions, currentUser]);
+    }, []);
+
+    useEffect(() => {
+        // У меня было (qualities.length && professions.length && currentUser && data._id)
+        if (qualities.length && professions.length && currentUser && data) {
+            setLoading(false);
+        }
+        /* console.log(data, professions, qualities, 1000); */ // ДОМАШКА: С ДАТОЙ ПРОБЛЕМЫ, ПУСТОЙ ОБЪЕКТ
+
+        /* console.log(data, 888); */ // ДОМАШКА: теперь с датой ок, НО В QUALITIES ПУСТОЙ []
+        // => НАДО УСТАНОВИТЬ КАЧЕСТВА В ФОРМАТЕ LABEL: "...", А ЭТО TRANSFORMDATA
+    }, [qualities, professions, data]);
+
+    // Тест. Качества действительно появляются асинхронно, с лагом.
+    /*   useEffect(() => {
+        getTheQualities(userId);
+    }, [qualities]); */
 
     // ДОМАШКА
-    // Функция для форматирования качеств, чтобы работали дочерние компоненты
+    // Функция для форматирования качеств (для передачи в options SelectField-Select)
     const transformData = (data) => {
+        /* console.log(data, 11); */ // data - [{ _id: "67rdca3eeb7f6fgeed471829", name: "Повар" }, {},...]
+        // У автора по другому
         return data.map((i) => ({
             value: i._id,
             label: i.name,
@@ -120,15 +156,6 @@ const UserEdit = ({ userId }) => {
     /*  useEffect(() => {
         validate(); // первое применение метода validate() - изменение стейта полей ввода
     }, [data]); */
-
-    const handleChange = (target) => {
-        setData((prevState) => ({
-            ...prevState,
-            [target.name]: target.value
-        }));
-        /* console.log(target.name, target.value); */ // email bob007@tw.co
-        /* console.log(data, 555); */ // [], негодный к отправке на ФБ, но качества и прфоессии есть
-    };
 
     // Изменён, родной в формах
     const validatorConfig = {
@@ -167,23 +194,23 @@ const UserEdit = ({ userId }) => {
     }; */
 
     // ДОМАШКА, переделал, но на выходе объект. Вроде так и надо, посмотрю на выхлоп
-    const getProfessionById = (id) => {
+    /* const getProfessionById = (id) => {
         for (const prof of professions) {
             if (prof._id === getUserById(id).profession) {
                 return prof;
             }
         }
-    };
+    }; */
 
-    // ДОМАШКА, удачно изменил функцию
-    // Добавил color, чтобы опшыны были цветными, но пока не реализовал
-    // (НЕ СТОИЛО, ЛОМАЕТСЯ ВСЁ ПРИЛОЖЕНИЕ!!!) сейчас попытаюсь исправить саму updateUser
-    const getQualities = (elements) => {
+    // ДОМАШКА, функция для получения правильного формата data
+    // для передачи её самой в defaultValue
+    // ПЕРЕИМЕНОВАЛ, ЧТОБЫ НЕ БЫЛО КОНФЛИКТА С РЕДАКСОВСКИМ ОДНОИМЁННЫМ СЕЛЕКТОРОМ
+    const transformQualities = (elements) => {
         const qualitiesArray = [];
+        /* console.log(qualities, 444222); */ // elements===qualities, пустые на первом рендере. Потом [id,id,...]
         for (const elem of elements) {
-            /* console.log(elem, 333); */ // ид типа стринг
             for (const quality of qualities) {
-                /* console.log(qualities, 444); */ // [{_id,color,name},{},...]
+                // console.log(qualities, 444); // [{_id,color,name},{},...] - ДОСТУПНЫ СРАЗУ
                 if (elem === quality._id) {
                     qualitiesArray.push({
                         value: quality._id,
@@ -193,7 +220,18 @@ const UserEdit = ({ userId }) => {
                 }
             }
         }
+        // console.log(elements, qualitiesArray, 999);
         return qualitiesArray;
+    };
+
+    const handleChange = async (target) => {
+        /* console.log(data, 777); */
+        setData((prevState) => ({
+            ...prevState,
+            [target.name]: target.value
+        }));
+        /* console.log(target.name, target.value); */ // email bob007@tw.co
+        /* console.log(data, 555); */ // [], негодный к отправке на ФБ, но качества и прфоессии есть
     };
 
     /* console.log(getQualities(currentUser.qualities), 555); */
@@ -220,7 +258,7 @@ const UserEdit = ({ userId }) => {
         // Видимо проблема в формате отправки. А где его посмотреть - хрен знает.
 
         // Тут исковеркал, чтобы доделать домаху, надо будет допилить
-        /*  const isValid = validate();
+        /* const isValid = validate();
         if (!isValid) return; */
         let isValid;
         if (isValid === 1) validate();
@@ -238,11 +276,13 @@ const UserEdit = ({ userId }) => {
     };
 
     // SelectField - options это {0:{value,label,color},1:{},...}
-
+    /* data === 5 && console.log(getQualities(data.qualities)); */
+    /* console.log(data.qualities, 222); */ // data (currentUser) - qualities проблема, пустой [] (они асинхронны)
+    /* console.log(currentUser.qualities, 333); */ // currentUser доступен сразу, вместе с его качествами [id,id,...]
     return (
         <div className="container mt-5">
             <div className="row">
-                {!loading && (
+                {!loading && !qualitiesLoading && (
                     <div className="col-md-6 offset-md-3 shadow p-4">
                         <h3>Изменение данных</h3>
 
@@ -269,7 +309,7 @@ const UserEdit = ({ userId }) => {
                                 defaultOption="Выберите..."
                                 label="Choose your profession"
                                 error={errorsObj.profession}
-                                value={data.profession.name}
+                                value={data.profession}
                                 name="profession"
                             />
                             <MultiSelectField
@@ -277,7 +317,9 @@ const UserEdit = ({ userId }) => {
                                 onChange={handleChange}
                                 name="qualities"
                                 label="Select your qualities"
-                                defaultValue={data.qualities}
+                                defaultValue={transformQualities(
+                                    data.qualities
+                                )}
                             />
                             <button
                                 /* disabled={!isValid} */

@@ -40,6 +40,9 @@ const AuthProvider = ({ children }) => {
         try {
             const { content } = await userService.getCurrentUser();
             setCurrentUser(content);
+            /* console.log(content, 332211); */
+            // ПРОВЕРКА ПОЛУЧЕННОГО С ФБ КАРРЕНТЮЗЕРА, ГДЕ
+            // QUALITIES И PROFESSION ЯВЛЯЮТСЯ СТРИНГОВЫМИ ID
         } catch (error) {
             errorCatcher(error);
         } finally {
@@ -185,7 +188,7 @@ const AuthProvider = ({ children }) => {
         try {
             const { content } = await userService.create(data);
             setCurrentUser(content);
-            /* console.log(content, 123); */
+            console.log(content, 123);
         } catch (error) {
             // код видео 9:39 - начинает переносить сюда эроркетчер с другого файла
             errorCatcher(error);
@@ -217,7 +220,7 @@ const AuthProvider = ({ children }) => {
             profession: data.profession
         };
         /* console.log(data.profession, 444); */ // нужна именно data.profession, это айдишник
-        console.log(data, newData); // +++
+        /* console.log(data, newData); */ // +++
         try {
             const { content } = await userService.update(newData);
             setCurrentUser(content);

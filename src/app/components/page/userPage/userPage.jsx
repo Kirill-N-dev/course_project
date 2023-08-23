@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 /* import api from "../../../api"; */
 import UserCard from "../../ui/userCard";
-import QualitiesCard from "../../ui/qualities/qualitiesCard";
+import QualitiesList from "../../ui/qualities/qualitiesList";
 import MeetingsCard from "../../ui/meetingsCard";
 import Comments from "../../ui/comments";
 import { useUser } from "../../../hooks/useUsers";
@@ -20,6 +20,7 @@ const UserPage = ({ userId }) => {
     /*     console.log(userId, 111111); */ // id левые
 
     const { getUserById } = useUser();
+
     const user = getUserById(userId);
 
     if (user) {
@@ -28,7 +29,7 @@ const UserPage = ({ userId }) => {
                 <div className="row gutters-sm">
                     <div className="col-md-4 mb-3">
                         <UserCard user={user} />
-                        <QualitiesCard qualities={user.qualities} />
+                        <QualitiesList qualities={user.qualities} />
                         <MeetingsCard value={user.completedMeetings} />
                     </div>
                     <div className="col-md-8">

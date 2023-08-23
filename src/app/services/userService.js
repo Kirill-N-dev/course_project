@@ -4,6 +4,8 @@ import { localStorageService } from "./localStorageService";
 const userEndpoint = "user/";
 
 // Вроде кастомный хук
+// В методе update автор в домашке брал id из локалсториджа
+// Также говорит, что можно и методом post, но тогда недостающие при передаче данные сотрутся и их надо будет отсылать тоже
 const userService = {
     get: async () => {
         const { data } = await httpService.get(userEndpoint);

@@ -21,6 +21,9 @@ const MultiSelectField = ({ options, onChange, name, label, defaultValue }) => {
         !Array.isArray(options) && typeof options === "object"
             ? Object.values(options)
             : options; // для переиспользуемости, чтобы не привязываться к конкретным полям
+    /* console.log(optionsArray, 444); */ // В случае qualities [{value,label,color},{},...], синхронное появление
+    /* setTimeout(() => console.log(optionsArray, 444), 1000); */ // В случае qualities [{value,label,color},{},...]
+    // их структура остаётся неизменной и идёт в Select
 
     const handleChange = (value) => {
         onChange({ name, value });

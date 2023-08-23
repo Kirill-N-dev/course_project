@@ -6,10 +6,13 @@ import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "./qualities/multiSelectField";
 import CheckBoxField from "../common/form/checkBoxField";
-import { useQual } from "../../hooks/useQualities";
-import { useProf } from "../../hooks/useProfession";
+/* import { useQual } from "../../hooks/useQualities"; */
+/* import { useProf } from "../../hooks/useProfession"; */
 import { useAuth } from "../../hooks/useAuth";
 import { useHistory } from "react-router";
+import { getQualities } from "../../store/qualities";
+import { useSelector } from "react-redux";
+import { getProfessions } from "../../store/professions";
 
 const RegisterForm = () => {
     const [data, setData] = useState({
@@ -28,8 +31,14 @@ const RegisterForm = () => {
 
     // Первая строка с запила урока "метод Signup"
     const { signUp } = useAuth();
-    const { qualities } = useQual();
-    const { professions } = useProf();
+
+    // Закомментил для получения качеств  из стора, неделя внедрения редакса в ФК
+    /* const { qualities } = useQual(); */
+    const qualities = useSelector(getQualities());
+
+    // Домашка, уход от стейта к редаксу, комментирую
+    /* const { professions } = useProf(); */
+    const professions = useSelector(getProfessions());
 
     const [errorsObj, setErrors] = useState({});
     const history = useHistory();

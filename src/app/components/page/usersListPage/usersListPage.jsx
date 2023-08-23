@@ -8,14 +8,24 @@ import SearchStatus from "../../ui/searchStatus";
 import UsersTable from "../../ui/usersTable";
 import _ from "lodash";
 import { useUser } from "../../../hooks/useUsers";
-import { useProf } from "../../../hooks/useProfession";
+/* import { useProf } from "../../../hooks/useProfession"; */
 import { useAuth } from "../../../hooks/useAuth";
+import {
+    getProfessions,
+    getProfessionsLoadingStatus
+} from "../../../store/professions";
+import { useSelector } from "react-redux";
 /* import { useAuth } from "../../../hooks/useAuth"; */
 
 const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     /* const [professions, setProfession] = useState(); */
-    const { loading: loadingProf, professions } = useProf();
+
+    // Домашка, комментирую. Профессии и лоадер теперь со стора
+    /* const { loading: loadingProf, professions } = useProf(); */
+    const professions = useSelector(getProfessions());
+    const professionsLoading = useSelector(getProfessionsLoadingStatus());
+
     const [selectedProf, setSelectedProf] = useState();
     const initialSort = { iter: "name", order: "asc" };
     const [sortBy, setSortBy] = useState(initialSort);
@@ -126,7 +136,7 @@ const UsersListPage = () => {
 
         return (
             <div className="d-flex">
-                {professions && !loadingProf && (
+                {professions && !professionsLoading && (
                     <div className="d-flex flex-column flex-shrink-0 p-3">
                         <GroupList
                             selectedItem={selectedProf}

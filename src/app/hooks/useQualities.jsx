@@ -49,7 +49,8 @@ export const QualitiesProvider = ({ children }) => {
         try {
             const { content } = await qualitiesService.get();
             setQualities(content);
-            /* console.log(content, 777); */
+            /* console.log(content, 777); */ // домашка, качества приходят, но в editUserPage и Quality qualitiesCard проблемы
+            // qualities будут [{_id, name, color},{},...}]
             setLoading(false);
 
             /* console.log(content, 888); */

@@ -3,12 +3,13 @@ import UsersListPage from "../components/page/usersListPage";
 import UserPage from "../components/page/userPage";
 import { EditUserPage } from "../components/ui";
 import UserProvider from "../hooks/useUsers";
-import { ProfessionProvider } from "../hooks/useProfession";
-import { QualitiesProvider } from "../hooks/useQualities";
+/* import { ProfessionProvider } from "../hooks/useProfession";
+import { QualitiesProvider } from "../hooks/useQualities"; */
 import AuthProvider, { useAuth } from "../hooks/useAuth";
 import { useHistory, useParams } from "react-router";
 
 const Users = () => {
+    // НУЖЕН ЛИ ТЕПЕРЬ ПРОВАЙДЕР?
     // Домашка, реализация редиректа на страницу изменения данных карент юзера (протектед роут)
     // типа протектед роута, суть та же
     const params = useParams();
@@ -21,25 +22,25 @@ const Users = () => {
         <>
             <AuthProvider>
                 <UserProvider>
-                    <ProfessionProvider>
-                        <QualitiesProvider>
-                            {userId ? (
-                                edit ? (
-                                    currentUser._id === userId ? (
-                                        <EditUserPage userId={userId} />
-                                    ) : (
-                                        history.replace(
-                                            `/users/${currentUser._id}/edit`
-                                        )
-                                    )
-                                ) : (
-                                    <UserPage userId={userId} />
-                                )
+                    {/* <ProfessionProvider>
+                        <QualitiesProvider> */}
+                    {userId ? (
+                        edit ? (
+                            currentUser._id === userId ? (
+                                <EditUserPage userId={userId} />
                             ) : (
-                                <UsersListPage />
-                            )}
-                        </QualitiesProvider>
-                    </ProfessionProvider>
+                                history.replace(
+                                    `/users/${currentUser._id}/edit`
+                                )
+                            )
+                        ) : (
+                            <UserPage userId={userId} />
+                        )
+                    ) : (
+                        <UsersListPage />
+                    )}
+                    {/*   </QualitiesProvider>
+                    </ProfessionProvider> */}
                 </UserProvider>
             </AuthProvider>
         </>

@@ -6,10 +6,11 @@ import httpService from "./httpService";
 // Проверил, именно по этому адресу лежит объект!
 const qualitiesEndpoint = "quality/";
 
-// ...
+// У автора почему-то fetchAll
 const qualitiesService = {
     get: async () => {
         const { data } = await httpService.get(qualitiesEndpoint);
+        /* console.log(data, 12345); */
         return data;
     }
 };
