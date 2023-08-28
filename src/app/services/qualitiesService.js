@@ -10,7 +10,7 @@ const qualitiesEndpoint = "quality/";
 const qualitiesService = {
     get: async () => {
         const { data } = await httpService.get(qualitiesEndpoint);
-        /* console.log(data, 12345); */
+        /* console.log(data, 12345); */ // +++, баг с качествами, но тут они приходят
         return data;
     }
 };

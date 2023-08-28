@@ -7,14 +7,15 @@ import GroupList from "../../common/groupList";
 import SearchStatus from "../../ui/searchStatus";
 import UsersTable from "../../ui/usersTable";
 import _ from "lodash";
-import { useUser } from "../../../hooks/useUsers";
+/* import { useUser } from "../../../hooks/useUsers"; */
 /* import { useProf } from "../../../hooks/useProfession"; */
-import { useAuth } from "../../../hooks/useAuth";
+/* import { useAuth } from "../../../hooks/useAuth"; */
 import {
     getProfessions,
     getProfessionsLoadingStatus
 } from "../../../store/professions";
 import { useSelector } from "react-redux";
+import { getCurrentUserId, getUsersList } from "../../../store/users";
 /* import { useAuth } from "../../../hooks/useAuth"; */
 
 const UsersListPage = () => {
@@ -33,10 +34,15 @@ const UsersListPage = () => {
     /* console.log(api); */ // {users, professions}
     const [searchValue, setSearchValue] = useState();
 
-    // Новый код вместо удалённого стейта
-    const { users } = useUser();
+    // Новый код вместо удалённого стейта (закомментил, переезд на редакс)
+    /* const { users } = useUser(); */
+    const users = useSelector(getUsersList());
+
     // Исправление сортировки, невывод авторизованного юзера
-    const { currentUser } = useAuth();
+    // Переезд на редакс, комментирую (уход от UseAuth)
+    /* const { currentUser } = useAuth(); */
+    const currentUserId = useSelector(getCurrentUserId());
+
     // Персонификация
     /*  const { currentUser } = useAuth(); */
 
@@ -103,7 +109,7 @@ const UsersListPage = () => {
                           JSON.stringify(selectedProf)
                   )
                 : data;
-            return filteredUsers.filter((u) => u._id !== currentUser._id);
+            return filteredUsers.filter((u) => u._id !== currentUserId);
         }
 
         const filteredUsers = filteringUsers(users);

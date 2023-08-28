@@ -14,7 +14,6 @@ const professionsSlice = createSlice({
         professionsReceived: (state, action) => {
             state.entities = action.payload;
             state.lastFetch = Date.now(); // Задаём в стор время получения профессий
-
             state.isLoading = false;
         },
         professionsRequestFiled: (state, action) => {

@@ -1,7 +1,8 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import configFile from "../config.json";
-import { httpAuth } from "../hooks/useAuth";
+/* import { httpAuth } from "../hooks/useAuth"; */
+import authService from "./authService";
 import { localStorageService } from "./localStorageService";
 
 // ниже код с добавкой метода сентри и тоаст библиотеки
@@ -36,10 +37,7 @@ http.interceptors.request.use(
             const refreshToken = localStorageService.getRefreshToken();
             /* console.log(refreshToken, expiresDate, Date.now(), 999); */
             if (refreshToken && expiresDate < Date.now()) {
-                const { data } = await httpAuth.post("token", {
-                    grant_type: "refresh_token",
-                    refresh_token: refreshToken
-                });
+                const data = await authService.refresh();
                 /* console.log(data, 666555); */
                 localStorageService.setTokens({
                     refreshToken: data.refresh_token,

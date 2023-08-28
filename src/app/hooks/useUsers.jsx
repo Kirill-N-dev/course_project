@@ -2,7 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import userService from "../services/userService";
-import { useAuth } from "./useAuth";
+import { useSelector } from "react-redux";
+import { getCurrentUserData } from "../store/users";
+/* import { useAuth } from "./useAuth"; */
 
 const UserContext = React.createContext();
 
@@ -17,8 +19,10 @@ const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // переезд на редакс (АВТОР ТУТ НИЧЕГ ОНЕ ДЕЛАЛ, ТАК КАК ТИПА ХУК)
     // Так как отсюда берутся качества для userPage, то именно тут надо обновить стейт юзеров при изменении текущего:
-    const { currentUser } = useAuth();
+    /* const { currentUser } = useAuth(); */
+    const currentUser = useSelector(getCurrentUserData());
 
     useEffect(() => {
         if (!loading) {
@@ -74,15 +78,13 @@ const UserProvider = ({ children }) => {
 
     // При багах попробовать сделать асинхронной
     function getUserById(userId) {
-        const result = users.find((u) => u._id === userId);
-        /* console.log(result, "result"); */ // +++
-        return result;
+        return users.find((u) => u._id === userId);
     }
 
     // ПОЧЕМУ-ТО НИЧЕГО НЕ ОБЁРНУТО В ЭТОТ ПРОВАЙДЕР - ВОПРОС ПОЧЕМУ? КОД АВТОРА - тру делет
     return (
         <UserContext.Provider value={{ users, getUserById }}>
-            {!loading ? children : "loading..."}
+            {!loading ? children : "loading from useUsers.jsx"}
         </UserContext.Provider>
     );
 };

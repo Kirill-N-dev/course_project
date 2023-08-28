@@ -15,6 +15,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useSelector } from "react-redux";
 import { getQualities, getQualitiesLoadingStatus } from "../../store/qualities";
 import { getProfessions } from "../../store/professions";
+import { getCurrentUserData } from "../../store/users";
 
 // qualities - все доступные качества юзеров, приходят асинхронно {{alc:{name:...}},{}...} obj values
 // data - {} выбранного юзера (data.qualities - [{...name:...},{}...])
@@ -53,7 +54,12 @@ const UserEdit = ({ userId }) => {
     // Лоадер из стора
     const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
     /* console.log(qualitiesLoading); */
-    const { currentUser, updateUser } = useAuth();
+
+    // Переезд на редакс, получение карентЮзера селектором\геттером
+    /* const { currentUser, updateUser } = useAuth(); */
+    const { updateUser } = useAuth();
+    const currentUser = useSelector(getCurrentUserData());
+    /*     useEffect(() => console.log(data, currentUser, 12345), [data, currentUser]); */ // id
 
     // Домашка, комментирую
     // Верхний запрос - юзера
@@ -109,6 +115,7 @@ const UserEdit = ({ userId }) => {
             ).name, */
         // почему undefined???
 
+        // ДАННЫЙ ЭФФЕКТ УСТАНАВЛИВАЕТ ДАННЫЕ КАРРЕНТЮЗЕРА В DATA, А ПОСЛЕДНЯЯ ИДЁТ В ЧЕЙНДЖ И САБМИТ
         setData((prevState) => ({
             ...prevState,
             ...currentUser
@@ -205,7 +212,7 @@ const UserEdit = ({ userId }) => {
     // ДОМАШКА, функция для получения правильного формата data
     // для передачи её самой в defaultValue
     // ПЕРЕИМЕНОВАЛ, ЧТОБЫ НЕ БЫЛО КОНФЛИКТА С РЕДАКСОВСКИМ ОДНОИМЁННЫМ СЕЛЕКТОРОМ
-    const transformQualities = (elements) => {
+    const transformQualities = (elements = []) => {
         const qualitiesArray = [];
         /* console.log(qualities, 444222); */ // elements===qualities, пустые на первом рендере. Потом [id,id,...]
         for (const elem of elements) {
@@ -224,12 +231,14 @@ const UserEdit = ({ userId }) => {
         return qualitiesArray;
     };
 
-    const handleChange = async (target) => {
-        /* console.log(data, 777); */
+    const handleChange = (target) => {
+        console.log(data, 777);
         setData((prevState) => ({
             ...prevState,
             [target.name]: target.value
         }));
+        /* setTimeout(() => console.log(data, 555), 5000); */ // при выборе качеств информация никуда не сохраняется
+
         /* console.log(target.name, target.value); */ // email bob007@tw.co
         /* console.log(data, 555); */ // [], негодный к отправке на ФБ, но качества и прфоессии есть
     };
@@ -271,7 +280,13 @@ const UserEdit = ({ userId }) => {
             qualities: getQualities(qualities)
         }); */
 
+        // Вставил код из hChange, не знаю, верно ли?
+        /* setData((prevState) => ({
+            ...prevState,
+            [target.name]: target.value
+        })); */
         await updateUser(data); // сюда доходит, но там ошибка и поэтому код встаёт
+        console.log("DATA AFTER SUBMIT goes to updateUser()", data);
         history.goBack();
     };
 

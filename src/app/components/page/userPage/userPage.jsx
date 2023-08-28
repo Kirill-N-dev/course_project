@@ -5,8 +5,10 @@ import UserCard from "../../ui/userCard";
 import QualitiesList from "../../ui/qualities/qualitiesList";
 import MeetingsCard from "../../ui/meetingsCard";
 import Comments from "../../ui/comments";
-import { useUser } from "../../../hooks/useUsers";
+/* import { useUser } from "../../../hooks/useUsers"; */
 import { CommentsProvider } from "../../../hooks/useComments";
+import { useSelector } from "react-redux";
+import { getUserById } from "../../../store/users";
 
 const UserPage = ({ userId }) => {
     // Это страница конкретного юзера
@@ -19,10 +21,12 @@ const UserPage = ({ userId }) => {
  */
     /*     console.log(userId, 111111); */ // id левые
 
-    const { getUserById } = useUser();
+    // Теперь юзер берётся из стора редакса
+    /* const { getUserById } = useUser();
+    const user = getUserById(userId); */
+    const user = useSelector(getUserById(userId));
 
-    const user = getUserById(userId);
-
+    // Качества пропадали при редактировании юзера, если не выбирать качеств (в процесе решения)
     if (user) {
         return (
             <div className="container">

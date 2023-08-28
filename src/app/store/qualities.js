@@ -57,9 +57,11 @@ export const loadQualitiesList = () => async (dispatch, getState) => {
 export const getQualities = () => (state) => state.qualities.entities;
 export const getQualitiesLoadingStatus = () => (state) =>
     state.qualities.isLoading;
+
 // Из недели внедрения редакса, получение правильных качеств для q...List
 export const getQualitiesByIds = (qualitiesIds) => (state) => {
-    if (state.qualities.entities) {
+    // ниже добавил лекарство && qualitiesIds - так эта сволочь теперь просто даёт пустые поля
+    if (state.qualities.entities && qualitiesIds) {
         const qualitiesArr = [];
         for (const qualId of qualitiesIds) {
             for (const quality of state.qualities.entities) {

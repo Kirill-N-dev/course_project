@@ -1,8 +1,10 @@
-import React from "react";
+import React /* useEffect */ from "react";
 import PropTypes from "prop-types";
 import { dater } from "../../../utils/dater";
-import { useUser } from "../../../hooks/useUsers";
-import { useAuth } from "../../../hooks/useAuth";
+/* import { useUser } from "../../../hooks/useUsers"; */
+/* import { useAuth } from "../../../hooks/useAuth"; */
+import { useSelector } from "react-redux";
+import { getCurrentUserId, getUserById } from "../../../store/users";
 /* import api from "../../../api"; */
 /* import _ from "lodash"; */
 
@@ -13,10 +15,15 @@ const Comment = ({
     userId,
     onDelete
 }) => {
-    // Получение юзера
-    const { getUserById } = useUser();
-    const { currentUser } = useAuth();
-    const user = getUserById(userId);
+    // Получение юзера (закомментил), переход на редакс
+    /*     const { getUserById } = useUser(); */
+    const user = useSelector(getUserById(userId));
+
+    // Переезд на редакс
+    /* const { currentUser } = useAuth(); */
+    const currentUserId = useSelector(getCurrentUserId());
+
+    /* const user = getUserById(userId); */
     /* const [loading, setLoading] = useState(false); */
 
     /* useEffect(() => {
@@ -50,7 +57,7 @@ const Comment = ({
                                                 - {dater(created)}
                                             </span>
                                         </p>
-                                        {currentUser._id === userId && (
+                                        {currentUserId === userId && (
                                             <button
                                                 className="btn btn-sm text-primary d-flex align-items-center"
                                                 onClick={() => onDelete(id)}

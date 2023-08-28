@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const QualitiesCard = ({ qualities }) => {
     // qualities - string id
-
+    /* console.log("qualitiesList.jsx, qualities: ", qualities); */ // Н Е  Д О Х О Д И Т, UNDEFINED
     // Неделя внедрения редакса, получаю лоадер качеств из стора
     /* const { loading } = useQual(); */
     const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
@@ -26,17 +26,21 @@ const QualitiesCard = ({ qualities }) => {
 
     /* console.log(qualities, 555); */ // качества есть - ЭТО [АЙДИШНИКИ]
     // ОБНАРУЖИЛ ПРОБЛЕМУ, ЕСЛИ БРАТЬ НОВЫЙ ЛОДЕР, ТО КАЧЕСТВА НЕ УСПЕВАЮТ ЗАГРУЗИТЬСЯ, И ОШИБКА РЕНДЕРА
-    return (
-        <>
-            {qualitiesList.map((qual) => (
-                <Quality key={qual._id} {...qual} />
-            ))}
-        </>
-    );
+    // ТУТ БАГ, ПОЧЕМУ-ТО ТАКОЙ ФИЛЬТР НЕ РАБОТАЕТ (ПОСЛЕ НЕОПРЕДЕЛЁННЫХ ИЗМЕНЕНИЙ КОДА)
+    if (qualities && qualitiesList) {
+        return (
+            <>
+                {qualitiesList.map((qual) => (
+                    <Quality key={qual._id} {...qual} />
+                ))}
+            </>
+        );
+    }
 };
 
+// Качества получаются асинхронно, потому убрал required
 QualitiesCard.propTypes = {
-    qualities: PropTypes.array.isRequired
+    qualities: PropTypes.array
 };
 
 export default QualitiesCard;

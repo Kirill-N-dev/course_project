@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router";
-import { useAuth } from "./useAuth";
+/* import { useAuth } from "./useAuth"; */
 /* import { idGen } from "../utils/idGen"; */
 import { nanoid } from "nanoid";
 import commentService from "../services/commentService";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { getCurrentUserId } from "../store/users";
 
 // Почти копипаста с юсПрофешн
 
@@ -22,7 +24,10 @@ export const CommentsProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     const { userId } = useParams();
-    const { currentUser } = useAuth();
+
+    // Переезд на редакс
+    /* const { currentUser } = useAuth(); */
+    const currentUserId = useSelector(getCurrentUserId());
 
     // Чтобы не было ошибок, использую часть кода впустую
     useEffect(() => {
@@ -48,7 +53,7 @@ export const CommentsProvider = ({ children }) => {
             ...data,
             pageId: userId,
             created_at: Date.now(),
-            userId: currentUser._id,
+            userId: currentUserId,
             _id: nanoid()
         };
         console.log(comment, 333);

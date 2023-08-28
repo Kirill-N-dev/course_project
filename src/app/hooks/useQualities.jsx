@@ -27,11 +27,6 @@ export const QualitiesProvider = ({ children }) => {
         }
     }, [error]);
 
-    // проверка квалитис
-    /* useEffect(() => {
-        console.log(qualities, 777);
-    }, [qualities]); */
-
     function errorCatcher(error) {
         const { message } = error.response.data;
         setError(message);
@@ -46,10 +41,11 @@ export const QualitiesProvider = ({ children }) => {
     // В этой ф-ии был неправильный импорт, в результате чего труднообнаруживаемый баг
     async function getQualitiesList() {
         //
+        console.log(333333); // ДО СЮДА ДАЖЕ НЕ ДОХОДИТ, ПОЧЕМУ ЭТО НЕ ВЫЗЫВАЕТСЯ ЭФФЕКТОМ ВЫШЕ??????????????????????????????????
         try {
             const { content } = await qualitiesService.get();
             setQualities(content);
-            /* console.log(content, 777); */ // домашка, качества приходят, но в editUserPage и Quality qualitiesCard проблемы
+            console.log(content, 777); // домашка, качества приходят, но в editUserPage и Quality qualitiesCard проблемы
             // qualities будут [{_id, name, color},{},...}]
             setLoading(false);
 
@@ -59,14 +55,16 @@ export const QualitiesProvider = ({ children }) => {
             errorCatcher(error);
         }
     }
-
-    return (
-        <QualitiesContext.Provider
-            value={{ loading, qualities, getTheQualities }}
-        >
-            {children}
-        </QualitiesContext.Provider>
-    );
+    // НИЖЕ КОСТЫЛЬ, ПОТОМ УДАЛИТЬ, НЕ ПОМОГЛО, ВИДНО ТУТ КАЧЕСТВА НЕ СТАВЯТСЯ
+    if (qualities) {
+        return (
+            <QualitiesContext.Provider
+                value={{ loading, qualities, getTheQualities }}
+            >
+                {children}
+            </QualitiesContext.Provider>
+        );
+    }
 };
 
 QualitiesProvider.propTypes = {

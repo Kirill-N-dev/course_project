@@ -8,11 +8,12 @@ import MultiSelectField from "./qualities/multiSelectField";
 import CheckBoxField from "../common/form/checkBoxField";
 /* import { useQual } from "../../hooks/useQualities"; */
 /* import { useProf } from "../../hooks/useProfession"; */
-import { useAuth } from "../../hooks/useAuth";
-import { useHistory } from "react-router";
+/* import { useAuth } from "../../hooks/useAuth"; */
+/* import { useHistory } from "react-router"; */
 import { getQualities } from "../../store/qualities";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getProfessions } from "../../store/professions";
+import { signUp } from "../../store/users";
 
 const RegisterForm = () => {
     const [data, setData] = useState({
@@ -30,7 +31,8 @@ const RegisterForm = () => {
     const [professions, setProfession] = useState({}); */
 
     // Первая строка с запила урока "метод Signup"
-    const { signUp } = useAuth();
+    // Переезд на редакс, уход от useAuth, функционал в users.js, комментирую
+    /* const { signUp } = useAuth(); */
 
     // Закомментил для получения качеств  из стора, неделя внедрения редакса в ФК
     /* const { qualities } = useQual(); */
@@ -41,7 +43,10 @@ const RegisterForm = () => {
     const professions = useSelector(getProfessions());
 
     const [errorsObj, setErrors] = useState({});
-    const history = useHistory();
+
+    // Переезд ФК на редакс, комментирую + добавляю диспатч
+    /*     const history = useHistory(); */
+    const dispatch = useDispatch();
 
     // ПОЗДНЕЙШАЯ ПРАВКА КВАЛИТИС ДЛЯ ПЕРЕДАЧИ В МУЛЬТИСЕЛЕКТФИЛД (ВЫВОД КАЧЕСТВ):
     const qualitiesList = qualities.map((q) => ({
@@ -184,7 +189,7 @@ const RegisterForm = () => {
     }; */
 
     // Передал ньюдату с урока по методу Сайнап
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
@@ -194,14 +199,7 @@ const RegisterForm = () => {
             qualities: data.qualities.map((q) => q.value)
         };
 
-        try {
-            await signUp(newData);
-            console.log(newData, "форма отправлена");
-            history.push("/");
-        } catch (error) {
-            setErrors(error);
-            console.log(error, "облом новый");
-        }
+        dispatch(signUp(newData));
     };
 
     // Квалитис были поправлены выше в квалитисЛист, для правильного формата

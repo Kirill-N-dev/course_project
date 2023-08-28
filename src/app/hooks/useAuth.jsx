@@ -18,10 +18,25 @@ const AuthContext = React.createContext();
 // Объяснений, как обычно, не было. Потому делаю копипасту, хоят работало и так.
 /* const httpAuth = axios.create(); */
 // Изменённый невесть когда автором код + я сам добавил в config.json нужный эндпойнт:
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// Неделя "Внедрение Redux в проект. Fast Company" - У АВТОРА ТУТ УЖЕ ДРУГОЙ, ПРАВИЛЬНЫЙ АДРЕС. ЕГО КОД ГУЛЯЕТ ОТ УРОКА К УРОКУ.
+// ДОЛЖНО БЫТЬ - identitytoolkit ВМЕСТО securetoken
 export const httpAuth = axios.create({
     baseURL: "https://securetoken.googleapis.com/v1/",
     params: { key: process.env.REACT_APP_FIREBASE_KEY }
 });
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 export const useAuth = () => {
     return useContext(AuthContext);
@@ -60,7 +75,9 @@ const AuthProvider = ({ children }) => {
     // Копипаста с другого хука
     useEffect(() => {
         if (error !== null) {
-            toast.error(error);
+            /* toast.error(error); */ // мой код, копирую у автора
+            toast(error);
+            setError(null);
         }
     }, [error]);
     //
@@ -180,6 +197,7 @@ const AuthProvider = ({ children }) => {
     function errorCatcher(error) {
         /* console.log(error, 4321); */
         const { message } = error.response.data.error;
+        // у автора error.response.data
         setError(message);
     }
 
@@ -209,6 +227,7 @@ const AuthProvider = ({ children }) => {
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // ДОМАШКА
+    // data должна иметь .value ключ, потому надо смотреть, чтобы сюда передавались качества в правильном формате - с value
     const updateUser = async (data) => {
         // data не совсем правильная, там qualities это не простой [], а [{},{}...]
         // потому при обновлении юзера (в БД) возникал баг, когда повторно запрашивались его качества
@@ -216,7 +235,7 @@ const AuthProvider = ({ children }) => {
         // Форматирую карентЮзера для отправки на ФБ:
         const newData = {
             ...data,
-            qualities: data.qualities.map((q) => q.value),
+            qualities: data.qualities.map((q) => (q.value ? q.value : q)),
             profession: data.profession
         };
         /* console.log(data.profession, 444); */ // нужна именно data.profession, это айдишник

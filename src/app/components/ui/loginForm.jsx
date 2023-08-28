@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import TextField from "../common/form/textField";
 import { validator } from "../../utils/validator";
 import CheckBoxField from "../common/form/checkBoxField";
-import { useAuth } from "../../hooks/useAuth";
-import { useHistory } from "react-router";
+/* import { useAuth } from "../../hooks/useAuth"; */
+/* import { useHistory } from "react-router"; */
+import { useDispatch } from "react-redux";
+import { logIn } from "../../store/users";
+import history from "../../utils/history";
 /* import * as yup from "yup"; */
 
 const LoginForm = () => {
@@ -22,10 +25,14 @@ const LoginForm = () => {
         validate(); // первое применение метода validate() - изменение стейта полей ввода
     }, [data]); */
 
-    // ДЛЯ ДОМАШККККИ, ПРОВЕДЕНИЕ ПРОПСА ЧЕРЕЗ КАСТОМНЫЙ ХУК
-    const { logIn } = useAuth();
-    const history = useHistory();
+    // ДЛЯ ДОМАШККИ, ПРОВЕДЕНИЕ ПРОПСА ЧЕРЕЗ КАСТОМНЫЙ ХУК
+    // комментирую, переезд на редакс + СТРАННО, ЧТО ИСТОРИЮ ОПЯТЬ БЕРЁТ ИЗ ХУКА, КОГДА ОНА ЕСТЬ В НОВОМ РОУТЕ.
+    /* const { logIn } = useAuth(); */
+    /* const history = useHistory(); */
     /* console.log(history); */
+
+    const dispatch = useDispatch();
+
     // Из урока ФБ 12 Переадресация после входа:
     /* console.log(history.location.state.from, 999888777); */
     const handleChange = (target) => {
@@ -89,28 +96,20 @@ const LoginForm = () => {
     // Надо для смены класса disabled у кнопки в самом низу, но ввиду отключения юсстейта это пока не работает
     /* const isValid = Object.keys(errorsObj).length === 0; */
 
-    const handleSubmit = async (ev) => {
+    // Переезд на редакс, убираем async await и try catch
+    const handleSubmit = (ev) => {
         ev.preventDefault();
         const isValid = validate(); // второе применение метода validate() - перед отправкой формы
         if (!isValid) return false; // если есть ошибки, отправки формы не будет
-        console.log("отправлено");
-        // ДОМАШКА:
-        // Сначала копипаста
-        console.log(data, 888666);
 
-        /*  const newData = {
-            ...data,
-            qualities: data.qualities.map((q) => q.value)
-        }; */
-
-        try {
-            await logIn(data);
-            history.push(
-                history.location.state.from ? history.location.state.from : "/"
-            );
-        } catch (error) {
-            setErrors(error);
+        let redirect;
+        if (history.location.state) {
+            redirect = history.location.state.from;
+        } else {
+            redirect = "/";
         }
+
+        dispatch(logIn({ payload: data, redirect }));
     };
 
     return (

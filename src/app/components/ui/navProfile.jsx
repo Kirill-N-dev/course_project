@@ -1,13 +1,21 @@
 import React, { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
+/* import { useAuth } from "../../hooks/useAuth"; */
 import { Link } from "react-router-dom";
+import { getCurrentUserData } from "../../store/users";
 
 const NavProfile = () => {
-    const { currentUser } = useAuth();
+    // переезд на редакс
+    /* const { currentUser } = useAuth(); */
+    const currentUser = useSelector(getCurrentUserData());
     const [isOpen, setOpen] = useState(false);
     const toggleMenu = () => {
         setOpen((prevState) => !prevState);
     };
+
+    if (!currentUser) {
+        return "Loading from navProfile.jsx - currentUser still not updated";
+    }
 
     return (
         <div className="dropdown" onClick={toggleMenu}>
