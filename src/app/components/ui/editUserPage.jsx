@@ -11,11 +11,11 @@ import BackButton from "../common/backButton";
 /* import { useUser } from "../../hooks/useUsers"; */
 /* import { useProf } from "../../hooks/useProfession"; */
 /* import { useQual } from "../../hooks/useQualities"; */
-import { useAuth } from "../../hooks/useAuth";
-import { useSelector } from "react-redux";
+/* import { useAuth } from "../../hooks/useAuth"; */
+import { useDispatch, useSelector } from "react-redux";
 import { getQualities, getQualitiesLoadingStatus } from "../../store/qualities";
 import { getProfessions } from "../../store/professions";
-import { getCurrentUserData } from "../../store/users";
+import { getCurrentUserData, updateUser } from "../../store/users";
 
 // qualities - все доступные качества юзеров, приходят асинхронно {{alc:{name:...}},{}...} obj values
 // data - {} выбранного юзера (data.qualities - [{...name:...},{}...])
@@ -55,9 +55,10 @@ const UserEdit = ({ userId }) => {
     const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
     /* console.log(qualitiesLoading); */
 
-    // Переезд на редакс, получение карентЮзера селектором\геттером
+    // Переезд на редакс, получение карентЮзера селектором\геттером + ДОМАШКА И АПДЕЙТЮЗЕР С ЮЗЕРС.ЖС
     /* const { currentUser, updateUser } = useAuth(); */
-    const { updateUser } = useAuth();
+    /*   const { updateUser } = useAuth(); */
+    const dispatch = useDispatch();
     const currentUser = useSelector(getCurrentUserData());
     /*     useEffect(() => console.log(data, currentUser, 12345), [data, currentUser]); */ // id
 
@@ -232,7 +233,7 @@ const UserEdit = ({ userId }) => {
     };
 
     const handleChange = (target) => {
-        console.log(data, 777);
+        /* console.log(data, 777); */ // разный формат даты на чендже и сабмите, имхо косяк, пока оставлю
         setData((prevState) => ({
             ...prevState,
             [target.name]: target.value
@@ -260,7 +261,7 @@ const UserEdit = ({ userId }) => {
 
     // !!! ДОМАШКА, Я ТУТ !!! НЕ РЕШЕНО
     /*  console.log(data); */ // currentUser перед отправкой на БД (qualities profession should be only id's)
-    const handleSubmit = async (ev) => {
+    const handleSubmit = (ev) => {
         ev.preventDefault();
 
         /* console.log(data, 111); */ // ДОМАШКА: дата меняется, но не сабмитится, в сети пусто
@@ -285,8 +286,11 @@ const UserEdit = ({ userId }) => {
             ...prevState,
             [target.name]: target.value
         })); */
-        await updateUser(data); // сюда доходит, но там ошибка и поэтому код встаёт
-        console.log("DATA AFTER SUBMIT goes to updateUser()", data);
+
+        // Домашка, импорт апдейта из слайса, переезд на редакс и избавление от useAuth
+        dispatch(updateUser(data));
+        /* console.log("DATA AFTER SUBMIT goes to updateUser()", data); */ // разный формат даты на чендже и сабмите, имхо косяк, пока оставлю
+        /* data === 5 && history.goBack(); */ // костыль для тестов
         history.goBack();
     };
 

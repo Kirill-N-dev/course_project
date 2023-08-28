@@ -58,8 +58,16 @@ const usersSlice = createSlice({
             state.isLoggedIn = false;
             state.auth = null;
             state.dataLoaded = false;
+        },
+        userUpdated: (state, action) => {
+            const theIndex = state.entities.findIndex(
+                (item) => item._id === action.payload._id
+            );
+            state.entities[theIndex] = action.payload;
+        },
+        userUpdateFailed: (state, action) => {
+            state.error = action.payload;
         }
-        /* userUpdated: (state) => {} */
     }
 });
 
@@ -73,7 +81,9 @@ const {
     authRequestSuccess,
     authRequestFailed,
     userCreated,
-    userLoggedOut
+    userLoggedOut,
+    userUpdated,
+    userUpdateFailed
 } = actions; // забрали экшены
 
 //
@@ -168,6 +178,23 @@ export const logOut = () => (dispatch) => {
     localStorageService.removeAuthData();
     dispatch(userLoggedOut());
     history.push("/");
+};
+
+// Домашка, апдейт юзера, переезд на редакс (избавление от UseAuth)
+export const updateUser = (data) => async (dispatch) => {
+    // Копипаста, должно работать, ибо дата генерируется в эдитЮзерПаге
+    const newData = {
+        ...data,
+        qualities: data.qualities.map((q) => (q.value ? q.value : q)),
+        profession: data.profession
+    };
+    try {
+        const { content } = await userService.update(newData);
+        console.log(content); // ты где????
+        dispatch(userUpdated(content));
+    } catch (error) {
+        dispatch(userUpdateFailed(error.message));
+    }
 };
 
 // Геттер/селектор из стора
