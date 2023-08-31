@@ -4,11 +4,17 @@ import PropTypes from "prop-types";
 /* import API from "../../../api"; */
 import TextAreaField from "../form/textAreaField";
 import { validator } from "../../../utils/validator";
+import { useSelector } from "react-redux";
+import { getCurrentUserId } from "../../../store/users";
+import { useParams } from "react-router";
 
-const initialData = { userId: "", content: "" };
+const initialData = { content: "" };
 
 const AddCommentForm = ({ onSubmit }) => {
-    //
+    // userId - айди пользователя, на странице коего находимся
+    const { userId } = useParams();
+    const currentUserId = useSelector(getCurrentUserId());
+
     const [data, setData] = useState(initialData);
     /* const [users, setUsers] = useState({}); */
     const [errors, setErrors] = useState({});
@@ -52,12 +58,14 @@ const AddCommentForm = ({ onSubmit }) => {
         setErrors({});
     };
 
-    const handleSubmit = (ev) => {
+    const handleSubmit = async (ev) => {
         ev.preventDefault();
         const isValid = validate();
         if (!isValid) return;
-        onSubmit(data);
+        console.log("Validation of Submit is completed");
+        await onSubmit({ ...data, pageId: userId, userId: currentUserId });
         clearForm();
+        console.log("Submit completely executed");
     };
 
     /* const arrayOfUsers =

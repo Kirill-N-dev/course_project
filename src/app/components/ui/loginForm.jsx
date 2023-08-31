@@ -4,8 +4,8 @@ import { validator } from "../../utils/validator";
 import CheckBoxField from "../common/form/checkBoxField";
 /* import { useAuth } from "../../hooks/useAuth"; */
 /* import { useHistory } from "react-router"; */
-import { useDispatch } from "react-redux";
-import { logIn } from "../../store/users";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthErrors, logIn } from "../../store/users";
 import history from "../../utils/history";
 /* import * as yup from "yup"; */
 
@@ -32,6 +32,7 @@ const LoginForm = () => {
     /* console.log(history); */
 
     const dispatch = useDispatch();
+    const loginError = useSelector(getAuthErrors());
 
     // Из урока ФБ 12 Переадресация после входа:
     /* console.log(history.location.state.from, 999888777); */
@@ -138,6 +139,7 @@ const LoginForm = () => {
             >
                 Оставаться в системе
             </CheckBoxField>
+            {loginError && <p className="text-danger">{loginError}</p>}
             <button
                 /*   disabled={!isValid} */
                 className="btn btn-primary w-100 mx-auto"

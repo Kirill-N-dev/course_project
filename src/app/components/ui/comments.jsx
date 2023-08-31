@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 /* import api from "../../api"; */
 /* import { idGen } from "../../../utils/idGen"; */
 /* import { useParams } from "react-router"; */
 import { orderBy } from "lodash";
 import CommentsList from "../common/comments/commentsList";
 import AddCommentForm from "../common/comments/addCommentForm";
-import { useComments } from "../../hooks/useComments";
+/* import { useComments } from "../../hooks/useComments"; */
+import { useDispatch, useSelector } from "react-redux";
+import {
+    createComment,
+    deleteComment,
+    getComments,
+    getCommentsLoadingStatus,
+    loadCommentsList
+} from "../../store/comments";
+import { useParams } from "react-router";
+/* import { getCurrentUserId } from "../../store/users"; */
 
 const Comments = () => {
     /*
@@ -22,13 +32,25 @@ const Comments = () => {
     */
 
     // id берётся из текущего адреса (путя)
-    /* const { userId } = useParams(); */
+    const { userId } = useParams();
 
     // Получение комментов текущего юзера ([{},{}...])
     /* const [comments, setComments] = useState([]); */
+    // Как понял, userId это айди юзера, на страницу которог осмотрим, а не каррентЮзера
+    /* const { userId } = useParams(); */
+    const dispatch = useDispatch();
 
-    const { createComment, comments, deleteComment, getComments } =
-        useComments();
+    useEffect(() => {
+        dispatch(loadCommentsList(userId));
+    }, [userId]);
+
+    const isLoading = useSelector(getCommentsLoadingStatus());
+    // Автор удалил getComments
+    // Домаха, теперь эти методы с изменениями переехали в comments.js
+    /* const { createComment, deleteComment } = useComments(); */
+    /*  const { deleteComment } = useComments(); */
+
+    const comments = useSelector(getComments());
 
     /*     useEffect(() => {
         api.comments
@@ -41,10 +63,12 @@ const Comments = () => {
         /* api.comments
             .add({ ...data, pageId: userId })
             .then((data) => setComments([...comments, data])); */
+
         /* console.log(data, 999); */
-        createComment(data);
-        /* getComments(); */ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (data === 5) getComments();
+        // data = Object { content: "ддд", pageId: "KlQ8DFBRG2dEbaEJI1e1bT488bZ2", userId: "RTi6CN9bpUejT8w3uiVAFoSABvu1" }
+
+        dispatch(createComment(data));
+        /* getComments(); */ // !!!
     };
 
     const handleDelete = (id) => {
@@ -53,11 +77,19 @@ const Comments = () => {
             .then((id) => setComments(comments.filter((x) => x._id !== id))); */
         /* console.log(id); */
         // выводится id коммента
-        deleteComment(id);
+        dispatch(deleteComment(id));
     };
 
     const sortedComments = orderBy(comments, ["created_at"], ["desc"]);
 
+    /* console.log(sortedComments, 12345); */
+    /* ЭТО МАССИВ ОБЪЕКТОВ ТИПА
+    {_id: "4Fyg7AriqkVr0YcKm7FlT";
+    content: "ддд";
+    created_at: 1693418837701;
+    pageId: "KlQ8DFBRG2dEbaEJI1e1bT488bZ2";
+    userId: "RTi6CN9bpUejT8w3uiVAFoSABvu1";} */
+    if (!sortedComments) return null;
     return (
         <>
             <div className="card mb-2">
@@ -70,10 +102,14 @@ const Comments = () => {
                     <div className="card-body ">
                         <h2>Comments</h2>
                         <hr />
-                        <CommentsList
-                            sortedComments={sortedComments}
-                            onDelete={handleDelete}
-                        />
+                        {!isLoading ? (
+                            <CommentsList
+                                sortedComments={sortedComments}
+                                onDelete={handleDelete}
+                            />
+                        ) : (
+                            "Loading from comments.jsx"
+                        )}
                     </div>
                 </div>
             )}

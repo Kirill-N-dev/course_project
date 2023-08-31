@@ -4,6 +4,7 @@ import authService from "../services/authService";
 import { localStorageService } from "../services/localStorageService";
 import { randomInt } from "../utils/randomInt";
 import history from "../utils/history";
+import { generateAuthError } from "../utils/generateAuthError";
 
 // В начальный момент карентюзер уже может быть в системе, но юзеры не подгружаться. Потому надо делать второй базовый стейт
 const initialState = localStorageService.getAccessToken()
@@ -67,6 +68,9 @@ const usersSlice = createSlice({
         },
         userUpdateFailed: (state, action) => {
             state.error = action.payload;
+        },
+        authRequested: (state) => {
+            state.error = null;
         }
     }
 });
@@ -169,7 +173,11 @@ export const logIn =
             localStorageService.setTokens(data);
             history.push(redirect);
         } catch (error) {
-            dispatch(authRequestFailed(error.message));
+            const { code, message } = error.response.data.error;
+            if (code === 400) {
+                const errorMsg = generateAuthError(message);
+                dispatch(authRequestFailed(errorMsg));
+            } else dispatch(authRequestFailed(error.message));
         }
     };
 
@@ -214,5 +222,8 @@ export const getUsersLoadingStatus = () => (state) => {
 export const getCurrentUserData = () => (state) => {
     if (!state.users.entities) return null;
     return state.users.entities.find((u) => u._id === state.users.auth.userId);
+};
+export const getAuthErrors = () => (state) => {
+    return state.users.error;
 };
 export default usersReducer;

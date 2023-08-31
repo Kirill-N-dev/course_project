@@ -14,7 +14,10 @@ import BackButton from "../common/backButton";
 /* import { useAuth } from "../../hooks/useAuth"; */
 import { useDispatch, useSelector } from "react-redux";
 import { getQualities, getQualitiesLoadingStatus } from "../../store/qualities";
-import { getProfessions } from "../../store/professions";
+import {
+    getProfessions,
+    getProfessionsLoadingStatus
+} from "../../store/professions";
 import { getCurrentUserData, updateUser } from "../../store/users";
 
 // qualities - все доступные качества юзеров, приходят асинхронно {{alc:{name:...}},{}...} obj values
@@ -53,6 +56,7 @@ const UserEdit = ({ userId }) => {
 
     // Лоадер из стора
     const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
+    const professionsLoading = useSelector(getProfessionsLoadingStatus());
     /* console.log(qualitiesLoading); */
 
     // Переезд на редакс, получение карентЮзера селектором\геттером + ДОМАШКА И АПДЕЙТЮЗЕР С ЮЗЕРС.ЖС
@@ -134,14 +138,14 @@ const UserEdit = ({ userId }) => {
 
     useEffect(() => {
         // У меня было (qualities.length && professions.length && currentUser && data._id)
-        if (qualities.length && professions.length && currentUser && data) {
+        if (!qualitiesLoading && !professionsLoading && currentUser && data) {
             setLoading(false);
         }
         /* console.log(data, professions, qualities, 1000); */ // ДОМАШКА: С ДАТОЙ ПРОБЛЕМЫ, ПУСТОЙ ОБЪЕКТ
 
         /* console.log(data, 888); */ // ДОМАШКА: теперь с датой ок, НО В QUALITIES ПУСТОЙ []
         // => НАДО УСТАНОВИТЬ КАЧЕСТВА В ФОРМАТЕ LABEL: "...", А ЭТО TRANSFORMDATA
-    }, [qualities, professions, data]);
+    }, [qualitiesLoading, professionsLoading, data]);
 
     // Тест. Качества действительно появляются асинхронно, с лагом.
     /*   useEffect(() => {
@@ -301,7 +305,7 @@ const UserEdit = ({ userId }) => {
     return (
         <div className="container mt-5">
             <div className="row">
-                {!loading && !qualitiesLoading && (
+                {!loading && (
                     <div className="col-md-6 offset-md-3 shadow p-4">
                         <h3>Изменение данных</h3>
 

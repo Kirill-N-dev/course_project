@@ -13,11 +13,20 @@ const Comment = ({
     created_at: created,
     _id: id,
     userId,
-    onDelete
+    onDelete,
+    pageId
 }) => {
+    // id of each comment
+    /* console.log(id); */
+
     // Получение юзера (закомментил), переход на редакс
     /*     const { getUserById } = useUser(); */
     const user = useSelector(getUserById(userId));
+
+    /* console.log(user, 888); */
+    /* Object { _id: "RTi6CN9bpUejT8w3uiVAFoSABvu1", completedMeetings: 69, email: "1122222221@2.3",
+    image: "https://avatars.dicebear.com/api/avataaars/a3fb3.svg", license: true, name: "ДЯДЯ ПЕТЯ ПАРОЛЬ GGGG6666",
+    profession: "67rdca3eeb7f6fgeed471820", qualities: (1) [67rdca3eeb7f6fgeed471102], rate: 3, sex: "male" } */
 
     // Переезд на редакс
     /* const { currentUser } = useAuth(); */
@@ -33,7 +42,7 @@ const Comment = ({
             setLoading(false);
         });
     }, []); */
-
+    if (!user) return null;
     return (
         <div className="bg-light card-body  mb-3">
             <div className="row">
@@ -83,7 +92,8 @@ Comment.propTypes = {
     created_at: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     userId: PropTypes.string,
     onDelete: PropTypes.func,
-    _id: PropTypes.string
+    _id: PropTypes.string,
+    pageId: PropTypes.string
 };
 
 export default Comment;
